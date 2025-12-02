@@ -30,24 +30,57 @@
             --tier1: #f59e0b;
             --tier2: #8b5cf6;
             --tier3: #6b7280;
+            --bg-gradient-start: #0ea5e9;
+            --bg-gradient-end: #0284c7;
+            --header-bg: rgba(255,255,255,0.95);
+            --nav-bg: rgba(255,255,255,0.98);
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+        
+        [data-theme="dark"] {
+            --sky: #0369a1;
+            --sand: #44403c;
+            --ocean: #0ea5e9;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --card: #1e293b;
+            --highlight: #fbbf24;
+            --tier1: #f59e0b;
+            --tier2: #a78bfa;
+            --tier3: #9ca3af;
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e293b;
+            --header-bg: rgba(30,41,59,0.95);
+            --nav-bg: rgba(30,41,59,0.98);
+            --border-color: #334155;
+            --shadow-color: rgba(0,0,0,0.3);
         }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--sky) 0%, var(--ocean) 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             color: var(--text);
             padding-bottom: 80px;
+            transition: background 0.3s ease;
         }
         
         header {
-            background: rgba(255,255,255,0.95);
+            background: var(--header-bg);
             backdrop-filter: blur(10px);
             padding: 20px 16px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 20px var(--shadow-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-content {
+            flex: 1;
         }
         
         header h1 {
@@ -65,7 +98,7 @@
         
         .tabs {
             display: flex;
-            background: rgba(255,255,255,0.95);
+            background: var(--header-bg);
             backdrop-filter: blur(10px);
             position: sticky;
             top: 76px;
@@ -205,7 +238,11 @@
         
         .event.highlight {
             border-left-color: var(--highlight);
-            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #fffbeb 0%, var(--card) 100%);
+        }
+        
+        [data-theme="dark"] .event.highlight {
+            background: linear-gradient(135deg, #422006 0%, var(--card) 100%);
         }
         
         .event.highlight::before {
@@ -214,7 +251,11 @@
         
         .event.critical {
             border-left-color: #ef4444;
-            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+            background: linear-gradient(135deg, #fef2f2 0%, var(--card) 100%);
+        }
+        
+        [data-theme="dark"] .event.critical {
+            background: linear-gradient(135deg, #450a0a 0%, var(--card) 100%);
         }
         
         .event.critical::before {
@@ -358,7 +399,7 @@
         
         .ref-item {
             padding: 12px 0;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-color);
         }
         
         .ref-item:last-child {
@@ -375,10 +416,59 @@
             font-size: 0.85rem;
         }
         
+        /* Theme Toggle Button */
+        .theme-toggle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--border-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .theme-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .theme-toggle-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Dark theme checkbox fix */
+        [data-theme="dark"] .event-check {
+            background: var(--card);
+            border-color: #475569;
+        }
+        
+        /* Dark theme tag colors */
+        [data-theme="dark"] .tag.transport { background: #1e3a5f; color: #93c5fd; }
+        [data-theme="dark"] .tag.food { background: #4a1942; color: #f9a8d4; }
+        [data-theme="dark"] .tag.activity { background: #064e3b; color: #6ee7b7; }
+        
+        /* Dark theme guide tabs */
+        [data-theme="dark"] .guide-tab[data-tier="1"] { background: #422006; color: #fbbf24; }
+        [data-theme="dark"] .guide-tab[data-tier="2"] { background: #2e1065; color: #a78bfa; }
+        [data-theme="dark"] .guide-tab[data-tier="3"] { background: #1f2937; color: #9ca3af; }
+        
+        /* Dark theme badges */
+        [data-theme="dark"] .badge-pass { background: #064e3b; color: #6ee7b7; }
+        [data-theme="dark"] .badge-separate { background: #450a0a; color: #fca5a5; }
+        
+        /* Dark theme attraction thumbnail */
+        [data-theme="dark"] .attraction-thumb {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+        }
+        
         /* Plan Toggle for Day 5 */
         .plan-toggle {
             display: flex;
-            background: #e2e8f0;
+            background: var(--border-color);
             border-radius: 12px;
             padding: 4px;
             margin-bottom: 16px;
@@ -397,8 +487,8 @@
         }
         
         .plan-toggle button.active {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: var(--card);
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
         
         .plan-toggle button[data-plan="a"] {
@@ -422,13 +512,13 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255,255,255,0.98);
+            background: var(--nav-bg);
             backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
             padding-bottom: calc(12px + env(safe-area-inset-bottom));
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 -4px 20px var(--shadow-color);
         }
         
         nav button {
@@ -565,7 +655,7 @@
         }
         
         .attraction-compare {
-            background: #f8fafc;
+            background: var(--border-color);
             border-radius: 6px;
             padding: 6px 8px;
             font-size: 0.7rem;
@@ -887,8 +977,11 @@
 <body>
 <div class="desktop-container">
     <header>
-        <h1>🏖️ 黄金海岸 7 天亲子游</h1>
-        <p>2025年12月5日 - 12月12日</p>
+        <div class="header-content">
+            <h1>🏖️ 黄金海岸 7 天亲子游</h1>
+            <p>2025年12月5日 - 12月12日</p>
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="切换主题">🌙</button>
     </header>
     
     <div id="countdown-banner" class="countdown-banner">
@@ -2095,14 +2188,51 @@
         // Initialize completed events on load
         loadCompletedEvents();
         
+        // Theme Toggle
+        function toggleTheme() {
+            haptic('light');
+            const html = document.documentElement;
+            const themeBtn = document.getElementById('theme-toggle');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+                themeBtn.textContent = '🌙';
+                themeBtn.title = '切换到暗黑模式';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '☀️';
+                themeBtn.title = '切换到明亮模式';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Initialize theme from localStorage or system preference
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeBtn = document.getElementById('theme-toggle');
+            
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '☀️';
+                themeBtn.title = '切换到明亮模式';
+            } else {
+                themeBtn.textContent = '🌙';
+                themeBtn.title = '切换到暗黑模式';
+            }
+        }
+        
+        initTheme();
+        
         // Quick action button haptic
         document.querySelectorAll('.quick-btn').forEach(btn => {
             btn.addEventListener('click', () => haptic('light'));
         });
         
-        // Double-tap to scroll to top
+        // Double-tap to scroll to top (on header content, not theme button)
         let lastTap = 0;
-        document.querySelector('header').addEventListener('click', () => {
+        document.querySelector('.header-content').addEventListener('click', () => {
             const now = Date.now();
             if (now - lastTap < 300) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
