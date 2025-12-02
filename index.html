@@ -2,785 +2,1407 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Cedric's Gold Coast Holiday</title>
-    
-    <!-- PWA Manifest -->
+    <meta name="apple-mobile-web-app-title" content="黄金海岸行程">
+    <meta name="theme-color" content="#0ea5e9">
+    <title>黄金海岸行程</title>
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Core Dependencies -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏖️</text></svg>">
     <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* Prevent bounce on iOS */
-        body { overscroll-behavior-y: none; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root {
+            --sky: #0ea5e9;
+            --sand: #fef3c7;
+            --ocean: #0284c7;
+            --text: #1e293b;
+            --muted: #64748b;
+            --card: #ffffff;
+            --highlight: #fbbf24;
+            --tier1: #f59e0b;
+            --tier2: #8b5cf6;
+            --tier3: #6b7280;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--sky) 0%, var(--ocean) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            padding-bottom: 80px;
+        }
+        
+        header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            color: var(--ocean);
+        }
+        
+        header p {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 76px;
+            z-index: 99;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            flex: 0 0 auto;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--muted);
+            border: none;
+            background: none;
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            color: var(--ocean);
+            border-bottom-color: var(--ocean);
+        }
+        
+        .content {
+            padding: 16px;
+        }
+        
+        .day-section {
+            display: none;
+        }
+        
+        .day-section.active {
+            display: block;
+        }
+        
+        .day-header {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .day-header h2 {
+            font-size: 1.3rem;
+            color: var(--ocean);
+            margin-bottom: 4px;
+        }
+        
+        .day-header .subtitle {
+            color: var(--highlight);
+            font-weight: 600;
+        }
+        
+        .event {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--sky);
+        }
+        
+        .event.highlight {
+            border-left-color: var(--highlight);
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
+        
+        .event.critical {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+        }
+        
+        .event-time {
+            font-size: 0.8rem;
+            color: var(--ocean);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .event-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .event-title a {
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .event-title a::after {
+            content: "📍";
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .event-details {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        
+        .event-details li {
+            margin-bottom: 4px;
+            list-style: none;
+            padding-left: 16px;
+            position: relative;
+        }
+        
+        .event-details li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--sky);
+        }
+        
+        .tag {
+            display: inline-block;
+            background: var(--sand);
+            color: var(--text);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-right: 6px;
+            margin-bottom: 4px;
+        }
+        
+        .tag.transport {
+            background: #dbeafe;
+        }
+        
+        .tag.food {
+            background: #fce7f3;
+        }
+        
+        .tag.activity {
+            background: #d1fae5;
+        }
+        
+        .ref-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .ref-section h3 {
+            color: var(--ocean);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .ref-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .ref-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ref-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .ref-item span {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+        
+        /* Plan Toggle for Day 5 */
+        .plan-toggle {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .plan-toggle button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .plan-toggle button.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .plan-toggle button[data-plan="a"] {
+            color: #f59e0b;
+        }
+        
+        .plan-toggle button[data-plan="b"] {
+            color: #3b82f6;
+        }
+        
+        .plan-content {
+            display: none;
+        }
+        
+        .plan-content.active {
+            display: block;
+        }
+        
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        
+        nav button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            padding: 8px 16px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.2s;
+        }
+        
+        nav button.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Attractions Guide Styles */
+        .tier-header {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .tier-header.tier1 {
+            border-left: 5px solid var(--tier1);
+        }
+        
+        .tier-header.tier2 {
+            border-left: 5px solid var(--tier2);
+        }
+        
+        .tier-header.tier3 {
+            border-left: 5px solid var(--tier3);
+        }
+        
+        .tier-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .tier-header p {
+            margin: 4px 0 0;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        
+        .attraction-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .attraction-card.tier1 {
+            border-left: 4px solid var(--tier1);
+        }
+        
+        .attraction-card.tier2 {
+            border-left: 4px solid var(--tier2);
+        }
+        
+        .attraction-card.tier3 {
+            border-left: 4px solid var(--tier3);
+        }
+        
+        .attraction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .attraction-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .attraction-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        .attraction-name a::after {
+            content: " 📍";
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .attraction-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .badge-pass {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .badge-separate {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .attraction-meta {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+        
+        .attraction-highlights {
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        
+        .attraction-highlights strong {
+            color: var(--ocean);
+        }
+        
+        .attraction-compare {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+        }
+        
+        .attraction-compare strong {
+            color: var(--tier1);
+        }
+        
+        .guide-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .guide-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .guide-tab {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .guide-tab[data-tier="1"] {
+            background: #fef3c7;
+            color: var(--tier1);
+        }
+        
+        .guide-tab[data-tier="2"] {
+            background: #ede9fe;
+            color: var(--tier2);
+        }
+        
+        .guide-tab[data-tier="3"] {
+            background: #f3f4f6;
+            color: var(--tier3);
+        }
+        
+        .guide-tab.active {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .tier-section {
+            display: none;
+        }
+        
+        .tier-section.active {
+            display: block;
+        }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-gray-800">
-    <div id="root"></div>
+<body>
+    <header>
+        <h1>🏖️ 黄金海岸 7 天亲子游</h1>
+        <p>2024年12月5日 - 12月12日</p>
+    </header>
+
+    <!-- Itinerary Page -->
+    <div id="page-itinerary" class="page active">
+        <div class="tabs" id="day-tabs">
+            <button class="tab active" data-day="0">D0</button>
+            <button class="tab" data-day="1">D1</button>
+            <button class="tab" data-day="2">D2</button>
+            <button class="tab" data-day="3">D3</button>
+            <button class="tab" data-day="4">D4</button>
+            <button class="tab" data-day="5">D5</button>
+            <button class="tab" data-day="6">D6</button>
+            <button class="tab" data-day="7">D7</button>
+        </div>
+        
+        <div class="content">
+            <!-- Day 0 -->
+            <div class="day-section active" data-day="0">
+                <div class="day-header">
+                    <h2>Day 0 · 12月5日 (周五)</h2>
+                    <div class="subtitle">🌙 深夜潜入</div>
+                </div>
+                
+                <div class="event critical">
+                    <div class="event-time">19:00</div>
+                    <div class="event-title">⚠️ [关键] 墨尔本机场晚餐</div>
+                    <div class="event-details">
+                        <li>在机场吃饱再出发！</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">21:30</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">✈️ 抵达黄金海岸 (OOL)</a></div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">22:00</div>
+                    <div class="event-title">🧳 提行李 → Uber 直奔 Nerang</div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">22:30</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Nightcap+at+Commercial+Hotel+Nerang">🏨 入住 Nightcap at Commercial Hotel</a></div>
+                    <div class="event-details">
+                        <li>⚠️ 需提前确认 Late Check-in 密码</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">任务</div>
+                    <div class="event-title">😴 睡觉</div>
+                </div>
+            </div>
+
+            <!-- Day 1 -->
+            <div class="day-section" data-day="1">
+                <div class="day-header">
+                    <h2>Day 1 · 12月6日 (周六)</h2>
+                    <div class="subtitle">🎬 好莱坞狂欢 (内陆突击)</div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">09:30 - 17:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Warner+Bros+Movie+World+Gold+Coast">🎢 Warner Bros. Movie World</a></div>
+                    <div class="event-details">
+                        <span class="tag transport">🚗 Uber 10分钟</span>
+                        <span class="tag food">🍔 园内午餐 11:30 错峰</span>
+                        <li>自带一些零食</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">晚餐</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Nightcap+at+Commercial+Hotel+Nerang">🍽️ Nightcap Bistro</a></div>
+                    <div class="event-details">
+                        <li>返回 Nerang 享用昨晚错过的晚餐</li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 2 -->
+            <div class="day-section" data-day="2">
+                <div class="day-header">
+                    <h2>Day 2 · 12月7日 (周日)</h2>
+                    <div class="subtitle">🚚 搬家 & 🌟 萤火虫</div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">09:00 - 10:30</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Slideways+Go+Karting+World+Nerang">🏎️ Slideways Go Karting</a></div>
+                    <div class="event-details">
+                        <li>利用还在 Nerang 的最后时间</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">11:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🏨 退房 → Uber 前往 Meriton Broadbeach</a></div>
+                    <div class="event-details">
+                        <li>寄存行李</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">11:30</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach">🛒 Pacific Fair 购物中心</a></div>
+                    <div class="event-details">
+                        <li>吃早午餐 (Brunch)</li>
+                        <li>⚠️ Coles/Woolworths 采购 (早餐/水/牛奶)</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">15:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🏨 Meriton 入住</a></div>
+                    <div class="event-details">
+                        <li>⚠️ 强制休息！整理行李</li>
+                        <li>Darren 午觉或泳池放松</li>
+                        <li>为晚上蓄力</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">17:30</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=The+Oasis+Shopping+Centre+Broadbeach">🍽️ 快速晚餐</a></div>
+                    <div class="event-details">
+                        <li>推荐: The Oasis 楼下简餐</li>
+                    </div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">18:30 - 22:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Natural+Bridge+Springbrook+National+Park">✨ Springbrook 萤火虫夜游</a></div>
+                    <div class="event-details">
+                        <li>旅游团车酒店楼下接送</li>
+                        <li>今晚体力充沛，非常适合</li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 3 -->
+            <div class="day-section" data-day="3">
+                <div class="day-header">
+                    <h2>Day 3 · 12月8日 (周一)</h2>
+                    <div class="subtitle">🐬 海洋霸主</div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">09:30 - 15:30</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Sea+World+Gold+Coast">🌊 Sea World 海洋世界</a></div>
+                    <div class="event-details">
+                        <span class="tag transport">🚃 轻轨 + HoPo 渡轮 (风景好)</span>
+                        <span class="tag transport">🚌 或 705 公交 (直达)</span>
+                    </div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">晚餐</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Harvest+Buffet+The+Star+Gold+Coast">🍱 Harvest Buffet 星亿自助餐</a></div>
+                    <div class="event-details">
+                        <li>周一犒劳大餐！</li>
+                        <li>就在住处隔壁</li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 4 -->
+            <div class="day-section" data-day="4">
+                <div class="day-header">
+                    <h2>Day 4 · 12月9日 (周二)</h2>
+                    <div class="subtitle">🦜 自然与海滩 (减负版)</div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">09:00 - 14:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Currumbin+Wildlife+Sanctuary">🐨 Currumbin Wildlife Sanctuary</a></div>
+                    <div class="event-details">
+                        <span class="tag transport">🚌 公交 700/777 直达</span>
+                        <li>⭐ 重点: 喂鹦鹉、抱考拉</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">14:00 - 16:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Currumbin+Alley+Beach">🏖️ Currumbin Alley 海湾玩水</a></div>
+                    <div class="event-details">
+                        <li>或回酒店躺平</li>
+                        <li>轻松模式: 晚上没行程，尽情玩</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">晚餐</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Marios+Italian+Restaurant+Broadbeach">🍝 Mario's Italian (The Oasis)</a></div>
+                    <div class="event-details">
+                        <li>或叫 Uber Eats 在公寓吃</li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 5 -->
+            <div class="day-section" data-day="5">
+                <div class="day-header">
+                    <h2>Day 5 · 12月10日 (周三)</h2>
+                    <div class="subtitle">💦 激流勇进</div>
+                </div>
+                
+                <div class="plan-toggle">
+                    <button class="active" data-plan="a">☀️ 晴天 Plan A</button>
+                    <button data-plan="b">☔️ 雨天 Plan B</button>
+                </div>
+                
+                <!-- Plan A: Sunny Day -->
+                <div class="plan-content active" data-plan="a">
+                    <div class="event highlight">
+                        <div class="event-time">10:00 - 15:00</div>
+                        <div class="event-title"><a href="https://maps.google.com/?q=Wet+n+Wild+Gold+Coast">🌊 Wet'n'Wild 狂野水世界</a></div>
+                        <div class="event-details">
+                            <span class="tag transport">🚗 Uber 往返</span>
+                            <li>避开周末人潮</li>
+                            <li>巨大儿童戏水城堡、漂流河</li>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Plan B: Rainy Day -->
+                <div class="plan-content" data-plan="b">
+                    <div class="event highlight">
+                        <div class="event-time">上午</div>
+                        <div class="event-title"><a href="https://maps.google.com/?q=Infinity+Gold+Coast+Surfers+Paradise">✨ Infinity Gold Coast 无限幻象屋</a></div>
+                        <div class="event-details">
+                            <li>光影迷宫，穿越20个光影环境</li>
+                            <li>Darren 必爱的魔法感官体验</li>
+                        </div>
+                    </div>
+                    
+                    <div class="event highlight">
+                        <div class="event-time">下午</div>
+                        <div class="event-title"><a href="https://maps.google.com/?q=Ripleys+Believe+It+or+Not+Surfers+Paradise">🎭 Ripley's Believe It or Not!</a></div>
+                        <div class="event-details">
+                            <li>信不信由你博物馆</li>
+                            <li>含激光躲避赛 (LaseRace) 和 7D 影院</li>
+                        </div>
+                    </div>
+                    
+                    <div class="event">
+                        <div class="event-time">备选</div>
+                        <div class="event-title"><a href="https://maps.google.com/?q=Timezone+Surfers+Paradise">🎮 Timezone 电玩城</a></div>
+                        <div class="event-details">
+                            <li>保龄球、碰碰车、街机</li>
+                        </div>
+                    </div>
+                    
+                    <div class="event" style="background: #f0f9ff; border-left-color: #3b82f6;">
+                        <div class="event-details">
+                            <li>📍 全在 Surfers Paradise，轻轨直达，全室内</li>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">晚餐</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Hurricanes+Grill+Surfers+Paradise">🥩 Hurricane's Grill 飓风烧烤</a></div>
+                    <div class="event-details">
+                        <li>📍 Surfers Paradise</li>
+                        <li>⚠️ 需提前预订</li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 6 -->
+            <div class="day-section" data-day="6">
+                <div class="day-header">
+                    <h2>Day 6 · 12月11日 (周四)</h2>
+                    <div class="subtitle">🚤 水上抉择 & 城市漫步</div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">上午 (二选一)</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Aquaduck+Surfers+Paradise">🦆 选项 A: Aquaduck 鸭子船</a></div>
+                    <div class="event-details">
+                        <li>温和有趣，看风景</li>
+                        <li>孩子可以"开船"并获得证书</li>
+                    </div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">上午 (二选一)</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Paradise+Jet+Boating+Surfers+Paradise">🚀 选项 B: Jet Boating 喷气快艇</a></div>
+                    <div class="event-details">
+                        <li>刺激尖叫！高速旋转 360°</li>
+                        <li>适合追求刺激的父子 (身高>1.2m)</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">下午</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=SkyPoint+Observation+Deck+Q1+Surfers+Paradise">🏙️ Q1 SkyPoint 观景</a></div>
+                    <div class="event-details">
+                        <li>或 <a href="https://maps.google.com/?q=Timezone+Surfers+Paradise" style="color: var(--ocean);">Timezone 打游戏</a></li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">晚餐</div>
+                    <div class="event-title">🍳 清理冰箱库存</div>
+                    <div class="event-details">
+                        <li>享受最后一晚</li>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 7 -->
+            <div class="day-section" data-day="7">
+                <div class="day-header">
+                    <h2>Day 7 · 12月12日 (周五)</h2>
+                    <div class="subtitle">✈️ 满载而归 (严控时间)</div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">10:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🏨 退房</a></div>
+                    <div class="event-details">
+                        <li>行李寄存前台</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">上午</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Kurrawa+Beach+Broadbeach">🏖️ Kurrawa Beach</a> 或 <a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach">Pacific Fair</a></div>
+                    <div class="event-details">
+                        <li>最后一次挖沙子或补货</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">16:30</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🧳 回 Meriton 取行李</a></div>
+                    <div class="event-details">
+                        <li>上厕所，准备出发</li>
+                    </div>
+                </div>
+                
+                <div class="event critical">
+                    <div class="event-time">17:00 ⏰ 死线</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">🚗 坐上 Uber 出发去机场！</a></div>
+                    <div class="event-details">
+                        <li>⚠️ 必须避开周五晚高峰拥堵</li>
+                    </div>
+                </div>
+                
+                <div class="event">
+                    <div class="event-time">18:00</div>
+                    <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">✈️ 抵达机场 (OOL)</a></div>
+                    <div class="event-details">
+                        <li>悠闲办理托运</li>
+                        <li>机场吃晚餐</li>
+                    </div>
+                </div>
+                
+                <div class="event highlight">
+                    <div class="event-time">20:10</div>
+                    <div class="event-title">🛫 起飞回墨尔本</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reference Page -->
+    <div id="page-reference" class="page">
+        <div class="content">
+            <div class="ref-section">
+                <h3>🏨 住宿信息</h3>
+                <div class="ref-item">
+                    <strong>D0-D1: Nightcap at Commercial Hotel</strong>
+                    <span>📍 Nerang | ⚠️ 需确认 Late Check-in 密码</span>
+                </div>
+                <div class="ref-item">
+                    <strong>D2-D6: Meriton Suites Broadbeach</strong>
+                    <span>📍 Broadbeach | 靠近 Pacific Fair</span>
+                </div>
+            </div>
+            
+            <div class="ref-section">
+                <h3>🎢 主题乐园</h3>
+                <div class="ref-item">
+                    <strong>Warner Bros. Movie World</strong>
+                    <span>华纳电影世界 | D1</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Sea World</strong>
+                    <span>海洋世界 | D3</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Wet'n'Wild</strong>
+                    <span>狂野水世界 | D5</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Currumbin Wildlife Sanctuary</strong>
+                    <span>库伦宾动物园 | D4 | 喂鹦鹉抱考拉</span>
+                </div>
+            </div>
+            
+            <div class="ref-section">
+                <h3>🍽️ 餐厅清单</h3>
+                <div class="ref-item">
+                    <strong>Nightcap Bistro</strong>
+                    <span>📍 Nerang | D1 晚餐</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Harvest Buffet 星亿自助餐</strong>
+                    <span>📍 The Star | D3 晚餐</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Mario's Italian</strong>
+                    <span>📍 The Oasis | D4 晚餐</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Hurricane's Grill 飓风烧烤</strong>
+                    <span>📍 Surfers Paradise | D5 晚餐 | ⚠️ 需预订</span>
+                </div>
+            </div>
+            
+            <div class="ref-section">
+                <h3>🚗 交通提示</h3>
+                <div class="ref-item">
+                    <strong>Sea World</strong>
+                    <span>轻轨 + HoPo 渡轮 (推荐) 或 705 公交</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Currumbin</strong>
+                    <span>公交 700/777 直达</span>
+                </div>
+                <div class="ref-item">
+                    <strong>主题乐园/机场</strong>
+                    <span>建议 Uber</span>
+                </div>
+            </div>
+            
+            <div class="ref-section">
+                <h3>☔️ 雨天备案 (D5)</h3>
+                <div class="ref-item">
+                    <strong>Infinity Gold Coast</strong>
+                    <span>无限幻象屋 | 光影迷宫</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Ripley's Believe It or Not!</strong>
+                    <span>信不信由你博物馆</span>
+                </div>
+                <div class="ref-item">
+                    <strong>Timezone</strong>
+                    <span>电玩城</span>
+                </div>
+            </div>
+            
+            <div class="ref-section">
+                <h3>⚠️ 关键提醒</h3>
+                <div class="ref-item">
+                    <strong>D0 19:00</strong>
+                    <span>墨尔本机场吃饱晚餐！</span>
+                </div>
+                <div class="ref-item">
+                    <strong>D2 Coles 采购</strong>
+                    <span>早餐、水、牛奶</span>
+                </div>
+                <div class="ref-item">
+                    <strong>D5 Hurricane's</strong>
+                    <span>需提前预订</span>
+                </div>
+                <div class="ref-item">
+                    <strong>D7 17:00 死线</strong>
+                    <span>必须上 Uber 去机场！避开晚高峰</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attractions Guide Page -->
+    <div id="page-guide" class="page">
+        <div class="guide-tabs">
+            <button class="guide-tab active" data-tier="1">🏆 绝对核心</button>
+            <button class="guide-tab" data-tier="2">🎖️ 强力推荐</button>
+            <button class="guide-tab" data-tier="3">🎗️ 备选</button>
+        </div>
+        
+        <div class="content">
+            <!-- Tier 1 -->
+            <div class="tier-section active" data-tier="1">
+                <div class="tier-header tier1">
+                    <div>
+                        <h3>🏆 Tier 1: 绝对核心</h3>
+                        <p>墨尔本完全缺失或无法比拟，极高 ROI</p>
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier1">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Warner+Bros+Movie+World+Gold+Coast">🎬 Warner Bros. Movie World</a></div>
+                        <span class="attraction-badge badge-pass">通票包含</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 全天 (10:00-17:00) · D1</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 飞车漂移特技秀、明星大游行、儿童驾驶学校<br>
+                        蝙蝠侠、超人、Looney Tunes 沉浸感极强
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 无。墨尔本没有好莱坞电影 IP 主题乐园
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier1">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Sea+World+Gold+Coast">� Sea World 海洋世界</a></div>
+                        <span class="attraction-badge badge-pass">通票包含</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 5-6 小时 · D3</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 海豚表演、滑水特技秀、海绵宝宝/忍者神龟主题区
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 完胜。墨尔本水族馆只是室内观赏
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier1">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Slideways+Go+Karting+World+Nerang">🏎️ Slideways Go Karting</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1.5-2 小时 · D2</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 3 层室内立体赛道竞速<br>
+                        Darren 可驾驶 Cadet Kart，离第一家酒店极近
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 赛道结构不同，多层立体更有趣
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier1">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Currumbin+Wildlife+Sanctuary">🐨 Currumbin Wildlife Sanctuary</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 4-5 小时 · D4</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 喂彩虹鹦鹉（几百只停在身上）、抱考拉
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 有本质区别！维州法律禁止拥抱考拉
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier1">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Natural+Bridge+Springbrook+National+Park">✨ Springbrook 蓝光萤火虫</a></div>
+                        <span class="attraction-badge badge-separate">需报团</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 3.5-4 小时 (夜间) · D2</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> Natural Bridge 徒步、洞穴中的"银河"
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 体验升级，洞穴景观更壮丽
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier1">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Paradise+Jet+Boating+Surfers+Paradise">🚀 Jet Boating 喷气快艇</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1 小时 · D6</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 360° 旋转、高速漂移、浪花飞溅<br>
+                        身高需 >1.2m
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> Broadwater 水域风景氛围更好
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tier 2 -->
+            <div class="tier-section" data-tier="2">
+                <div class="tier-header tier2">
+                    <div>
+                        <h3>🎖️ Tier 2: 强力推荐</h3>
+                        <p>体验优秀，适合季节，便利性/规模胜过墨尔本</p>
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier2">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Wet+n+Wild+Gold+Coast">💦 Wet'n'Wild 狂野水世界</a></div>
+                        <span class="attraction-badge badge-pass">通票包含</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 4-5 小时 · D5 (Plan A)</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 巨大儿童戏水城堡、漂流河
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 气候优势。12月墨尔本下水太冷
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier2">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Infinity+Gold+Coast+Surfers+Paradise">✨ Infinity Gold Coast</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 45分钟-1小时 · D5 (Plan B)</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 穿越 20 个光影环境，极具未来感<br>
+                        最佳雨天备案，Darren 的"魔法"体验
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 独家体验。墨尔本没有光影迷宫
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier2">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Aquaduck+Surfers+Paradise">🦆 Aquaduck 鸭子船</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1.5 小时 · D6</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 车船合一，冲入水中！孩子可"开船"获证书
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 无。墨尔本没有两栖观光车
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier2">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Hurricanes+Grill+Surfers+Paradise">🥩 Hurricane's Grill</a></div>
+                        <span class="attraction-badge badge-separate">需预订</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1.5-2 小时 · D5 晚餐</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 澳洲烤肋排天花板，招牌全份猪肋排
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 品牌独占。墨尔本没有 Hurricane's
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier2">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Harvest+Buffet+The+Star+Gold+Coast">🍱 Harvest Buffet 星亿自助</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 2 小时 · D3 晚餐</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 无限量海鲜、甜点区，就在住处隔壁
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 场景优势。海边吃海鲜更应景
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier2">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Ripleys+Believe+It+or+Not+Surfers+Paradise">🎭 Ripley's Believe It or Not!</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1.5-2 小时 · D5 (Plan B)</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 奇趣展品、激光躲避赛 (LaseRace)、7D 影院
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 无。墨尔本没有 Ripley's
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier2">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Broadbeach+Gold+Coast">🏖️ Broadbeach / Surfers Paradise</a></div>
+                        <span class="attraction-badge" style="background:#d1fae5;color:#059669;">免费</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1-2 小时 · 随时</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 玩沙、踩水，黄金海岸的灵魂
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 浪更大、沙更细、水更蓝
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tier 3 -->
+            <div class="tier-section" data-tier="3">
+                <div class="tier-header tier3">
+                    <div>
+                        <h3>🎗️ Tier 3: 填补空档</h3>
+                        <p>墨尔本有替代品，或属于特定兴趣点</p>
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Holoverse+Southport">🦕 Holoverse Dinosaur World</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1 小时 · 备选</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 全息互动，"喂"雷龙，看恐龙孵化<br>
+                        无需 VR 眼镜，比 Timezone 更有科技感
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 体验独特，全息乐园较少见
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Timezone+Surfers+Paradise">🎮 Timezone Surfers Paradise</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1-2 小时 · D5/D6 备选</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 保龄球、碰碰车、街机，面积巨大
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 高度重叠。Highpoint/Chadstone 也有
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach">🛒 Pacific Fair 购物中心</a></div>
+                        <span class="attraction-badge" style="background:#d1fae5;color:#059669;">免费</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 3-4 小时 · D2</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 乐高店、书店、就在家门口
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> Chadstone 更好
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Paradise+Country+Gold+Coast">🐑 Paradise Country 天堂农庄</a></div>
+                        <span class="attraction-badge badge-pass">通票包含</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 3 小时 · 未安排</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 剪羊毛表演
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 高度重叠。墨尔本周边农场很多
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Marios+Italian+Restaurant+Broadbeach">🍝 Mario's Italian</a></div>
+                        <span class="attraction-badge badge-separate">单独买票</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1.5 小时 · D4 晚餐</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 离家近，不出错
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 墨尔本意餐完胜
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=SkyPoint+Observation+Deck+Q1+Surfers+Paradise">🏙️ Q1 SkyPoint 观景台</a></div>
+                        <span class="attraction-badge badge-separate">通票不含</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 1.5 小时 · D6</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 地标建筑，视野好
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> Eureka Skydeck 体验逻辑一致
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Dreamworld+Gold+Coast">🎢 Dreamworld 梦幻世界</a></div>
+                        <span class="attraction-badge badge-separate">通票不含</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 全天 · 未安排</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> 澳洲最大乐园
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> 部分重叠。已有 Movie World
+                    </div>
+                </div>
+                
+                <div class="attraction-card tier3">
+                    <div class="attraction-header">
+                        <div class="attraction-name"><a href="https://maps.google.com/?q=Thunderbird+Park+Mount+Tamborine">🌲 Mount Tamborine 坦伯林山</a></div>
+                        <span class="attraction-badge badge-separate">需租车</span>
+                    </div>
+                    <div class="attraction-meta">⏱️ 全天 · 未安排</div>
+                    <div class="attraction-highlights">
+                        <strong>核心体验:</strong> Thunderbird Park 挖矿、树顶挑战
+                    </div>
+                    <div class="attraction-compare">
+                        <strong>🆚 墨尔本:</strong> Dandenong Ranges 也有树顶挑战，性价比存疑
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <button class="active" data-page="itinerary">�</button>
+        <button data-page="guide">🏆</button>
+        <button data-page="reference">📋</button>
+    </nav>
 
     <script>
-        // 注册 Service Worker 实现离线功能
+        // Service Worker Registration
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then((registration) => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch((registrationError) => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
+            navigator.serviceWorker.register('sw.js');
         }
-    </script>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        // --- 1. 内置 SVG 图标 (离线可用) ---
-        const IconBase = ({ children, size = 16, className = "", color = "currentColor" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                {children}
-            </svg>
-        );
-
-        const Icons = {
-            Plane: (props) => <IconBase {...props}><path d="M2 12h20"/><path d="M13 2l9 10-9 10"/><path d="M12 22v-4"/><path d="M12 2v4"/></IconBase>,
-            Car: (props) => <IconBase {...props}><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></IconBase>,
-            Hotel: (props) => <IconBase {...props}><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></IconBase>,
-            MapPin: (props) => <IconBase {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></IconBase>,
-            Utensils: (props) => <IconBase {...props}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></IconBase>,
-            AlertTriangle: (props) => <IconBase {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconBase>,
-            Sun: (props) => <IconBase {...props}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></IconBase>,
-            CloudRain: (props) => <IconBase {...props}><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></IconBase>,
-            Clock: (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></IconBase>,
-            Ticket: (props) => <IconBase {...props}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></IconBase>,
-            Camera: (props) => <IconBase {...props}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></IconBase>,
-            Coffee: (props) => <IconBase {...props}><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></IconBase>,
-            ShoppingBag: (props) => <IconBase {...props}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></IconBase>,
-            CheckCircle: (props) => <IconBase {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconBase>,
-            Navigation: (props) => <IconBase {...props}><polygon points="3 11 22 2 13 21 11 13 3 11"/></IconBase>,
-            Sparkles: (props) => <IconBase {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 5H5"/><path d="M5 5H1"/></IconBase>,
-            X: (props) => <IconBase {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>,
-            Loader: (props) => <IconBase {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></IconBase>
-        };
-
-        const apiKey = ""; 
-
-        const ItineraryApp = () => {
-            const [viewMode, setViewMode] = useState('itinerary'); 
-            const [activeDay, setActiveDay] = useState(0);
-            const [weatherMode, setWeatherMode] = useState('sun'); 
-            const [showAiModal, setShowAiModal] = useState(false);
-            const [aiLoading, setAiLoading] = useState(false);
-            const [aiResponse, setAiResponse] = useState(null);
-            const [aiQueryType, setAiQueryType] = useState('weather');
-
-            // --- 3. 行程数据 (v6.0 Final) ---
-            const itinerary = [
-                {
-                    day: 0,
-                    date: "12月05日 (周五)",
-                    title: "深夜潜入 | Arrival",
-                    location: "Melbourne -> Gold Coast",
-                    summary: "晚班机抵达，注意晚餐和自助入住。",
-                    risks: [
-                        { type: "critical", msg: "出发前务必拿到 Nightcap 入住 PIN 码 (前台可能无人)！" },
-                        { type: "warning", msg: "Nerang 深夜无餐，务必在墨尔本机场吃饱晚餐。" }
-                    ],
-                    timeline: [
-                        { time: "18:30", icon: "Car", title: "抵达墨尔本机场 (MEL)", desc: "前往 T3 航站楼" },
-                        { time: "19:00", icon: "Utensils", title: "晚餐 (关键)", desc: "在机场吃饱，确保孩子不饿。" },
-                        { time: "20:20", icon: "Plane", title: "起飞 (VA761)", desc: "飞行时间约 2h 10m" },
-                        { time: "21:30", icon: "MapPin", title: "抵达黄金海岸 (OOL)", desc: "提取行李，叫 Uber 直奔 Nerang" },
-                        { time: "22:30", icon: "Hotel", title: "入住 Nightcap Nerang", desc: "使用密码箱自助入住，安静洗漱睡觉。" }
-                    ]
-                },
-                {
-                    day: 1,
-                    date: "12月06日 (周六)",
-                    title: "好莱坞狂欢 | Movie World",
-                    location: "Nerang Base",
-                    summary: "利用地理优势攻克最耗体力的乐园。",
-                    risks: [],
-                    timeline: [
-                        { time: "09:00", icon: "Coffee", title: "早餐", desc: "酒店附近 7-11 或麦当劳简单解决" },
-                        { time: "09:30", icon: "Car", title: "Uber 前往电影世界", desc: "车程约 10 分钟" },
-                        { time: "10:00", icon: "Ticket", title: "Warner Bros. Movie World", desc: "必玩：特技飞车秀、明星巡游、儿童驾驶学校。" },
-                        { time: "11:30", icon: "Utensils", title: "错峰午餐", desc: "园内解决，自带一些零食" },
-                        { time: "15:30", icon: "Camera", title: "明星大游行 (必看)", desc: "Main Street" },
-                        { time: "17:00", icon: "Car", title: "返回 Nerang", desc: "此时大家都累了，回酒店休息" },
-                        { time: "18:30", icon: "Utensils", title: "晚餐", desc: "Nightcap Bistro (享用周六晚氛围)" }
-                    ]
-                },
-                {
-                    day: 2,
-                    date: "12月07日 (周日)",
-                    title: "搬家 & 萤火虫 | Transition",
-                    location: "Nerang -> Broadbeach",
-                    summary: "轻松的一天，晚上去看神奇的萤火虫。",
-                    risks: [
-                        { type: "info", msg: "萤火虫夜游移至今天晚上，防止 Day 4 体力透支。" }
-                    ],
-                    timeline: [
-                        { time: "09:00", icon: "Car", title: "Slideways Go Karting", desc: "就在酒店旁，玩 1.5 小时" },
-                        { time: "11:00", icon: "Hotel", title: "退房 & 转移", desc: "Uber 前往 Meriton Broadbeach，寄存行李" },
-                        { time: "11:30", icon: "ShoppingBag", title: "Pacific Fair 大采购", desc: "Brunch + Coles 采购未来5天早餐物资" },
-                        { time: "15:00", icon: "CheckCircle", title: "Meriton 入住", desc: "强制休息：整理行李，睡个午觉或泳池放松。" },
-                        { time: "17:30", icon: "Utensils", title: "快速晚餐", desc: "The Oasis 楼下简餐，准备出发" },
-                        { time: "18:30", icon: "Navigation", title: "萤火虫夜游 (接送)", desc: "Springbrook National Park，徒步看蓝光虫" }
-                    ]
-                },
-                {
-                    day: 3,
-                    date: "12月08日 (周一)",
-                    title: "海洋霸主 | Sea World",
-                    location: "Broadbeach Base",
-                    summary: "全天海洋动物与海绵宝宝。",
-                    risks: [],
-                    timeline: [
-                        { time: "09:30", icon: "Navigation", title: "前往 Sea World", desc: "轻轨到 Surfers Paradise -> 转 HoPo 渡轮 (风景好) 或 705公交" },
-                        { time: "10:00", icon: "Ticket", title: "Sea World", desc: "海豚秀、Nickelodeon Land" },
-                        { time: "16:00", icon: "Navigation", title: "返回 Broadbeach", desc: "轻轨 G:link" },
-                        { time: "18:30", icon: "Utensils", title: "海鲜大餐", desc: "Harvest Buffet (就在隔壁 The Star)" }
-                    ]
-                },
-                {
-                    day: 4,
-                    date: "12月09日 (周二)",
-                    title: "自然与海滩 | Nature (Lite)",
-                    location: "Currumbin",
-                    summary: "减负版行程：动物园+海滩。晚上彻底躺平。",
-                    risks: [
-                        { type: "success", msg: "减负成功：今晚没有安排，下午可以尽情在公寓躺平或海边玩沙。" }
-                    ],
-                    timeline: [
-                        { time: "09:00", icon: "Navigation", title: "前往 Currumbin", desc: "公交 700/777 直达" },
-                        { time: "09:30", icon: "Camera", title: "Currumbin Wildlife Sanctuary", desc: "重点：喂鹦鹉、抱考拉" },
-                        { time: "14:00", icon: "Sun", title: "Currumbin Alley 玩水", desc: "如果不累就玩水，累了就回酒店午睡" },
-                        { time: "18:00", icon: "Utensils", title: "晚餐", desc: "Mario's Italian (The Oasis) 或 Uber Eats" }
-                    ]
-                },
-                {
-                    day: 5,
-                    date: "12月10日 (周三)",
-                    title: "激流勇进 | Wet'n'Wild",
-                    location: "Inland / Surfers",
-                    summary: "水上乐园日。含详细雨天备案。",
-                    risks: [
-                        { type: "warning", msg: "若下雨，请切换至 Plan B 室内方案。" }
-                    ],
-                    timeline: weatherMode === 'sun' ? [
-                        { time: "10:00", icon: "Car", title: "Uber 前往 Wet'n'Wild", desc: "约 25 分钟车程 (避开周末人潮)" },
-                        { time: "10:30", icon: "Ticket", title: "畅玩水世界", desc: "直奔 Junior 区，漂流河" },
-                        { time: "15:00", icon: "Car", title: "返回酒店", desc: "车上补觉" },
-                        { time: "18:00", icon: "Utensils", title: "晚餐: Hurricane's Grill", desc: "Surfers Paradise (需预订)" }
-                    ] : [
-                        { time: "10:00", icon: "Navigation", title: "前往 Surfers Paradise", desc: "轻轨 G:link 直达" },
-                        { time: "10:30", icon: "Ticket", title: "Infinity Gold Coast", desc: "光影迷宫，Darren 必爱" },
-                        { time: "12:30", icon: "Utensils", title: "午餐", desc: "Betty's Burgers" },
-                        { time: "14:00", icon: "Ticket", title: "Ripley's / Timezone", desc: "信不信由你博物馆 或 室内游戏厅" },
-                        { time: "18:00", icon: "Utensils", title: "晚餐: Hurricane's Grill", desc: "Surfers Paradise (需预订)" }
-                    ]
-                },
-                {
-                    day: 6,
-                    date: "12月11日 (周四)",
-                    title: "水上抉择 | City & Chill",
-                    location: "Surfers Paradise",
-                    summary: "水上活动二选一，最后查漏补缺。",
-                    risks: [],
-                    timeline: [
-                        { time: "10:00", icon: "Coffee", title: "睡个懒觉", desc: "Meriton 阳台早餐" },
-                        { time: "11:00", icon: "Navigation", title: "选项：Aquaduck (温和) 或 Jet Boat (刺激)", desc: "现场决定，都在 Surfers Paradise" },
-                        { time: "13:00", icon: "Utensils", title: "午餐", desc: "Surfers Paradise 随心选" },
-                        { time: "15:00", icon: "Camera", title: "Q1 SkyPoint", desc: "登高望远，或回Timezone打游戏" },
-                        { time: "18:00", icon: "Utensils", title: "清空冰箱", desc: "最后的一晚，简单吃" }
-                    ]
-                },
-                {
-                    day: 7,
-                    date: "12月12日 (周五)",
-                    title: "满载而归 | Departure",
-                    location: "Gold Coast -> Melbourne",
-                    summary: "退房，最后的海滩时光，严控送机时间。",
-                    risks: [
-                        { type: "critical", msg: "周五晚高峰极其拥堵！必须在 17:00 前坐上 Uber，不可迟疑。" }
-                    ],
-                    timeline: [
-                        { time: "10:00", icon: "Hotel", title: "退房", desc: "行李寄存前台" },
-                        { time: "10:30", icon: "Sun", title: "最后的海滩/商场", desc: "Kurrawa Beach 或 Pacific Fair" },
-                        { time: "16:30", icon: "ShoppingBag", title: "取行李", desc: "整理完毕，上厕所" },
-                        { time: "17:00", icon: "Car", title: "Uber 前往机场 (死线)", desc: "预留 1 小时车程应对堵车" },
-                        { time: "18:20", icon: "Utensils", title: "机场晚餐", desc: "OOL 机场内解决" },
-                        { time: "20:10", icon: "Plane", title: "起飞 (VA752)", desc: "回家！" }
-                    ]
-                }
-            ];
-
-            // --- 4. 景点数据 ---
-            const attractions = {
-                tier1: [
-                    {
-                        name: "Warner Bros. Movie World",
-                        cnName: "华纳电影世界",
-                        tag: "✅",
-                        owner: "Village Roadshow (通票包含)",
-                        duration: "全天 (10:00 - 17:00)",
-                        reason: "黄金海岸的王牌。对于 7 岁男孩，蝙蝠侠、超人、Looney Tunes 的沉浸感极强。",
-                        core: "飞车漂移特技秀 (Stunt Driver)、明星大游行、儿童驾驶学校。",
-                        compare: "无 (None)。墨尔本没有好莱坞电影 IP 的大型主题乐园。"
-                    },
-                    {
-                        name: "Sea World",
-                        cnName: "海洋世界",
-                        tag: "✅",
-                        owner: "Village Roadshow (通票包含)",
-                        duration: "5-6 小时",
-                        reason: "动物园 + 游乐场 + 特技秀的综合体。海绵宝宝和忍者神龟主题区是大杀器。",
-                        core: "海豚表演、滑水特技秀、Nickelodeon 游乐区。",
-                        compare: "完胜 (Superior)。墨尔本水族馆只是室内观赏，这里是户外大型综合乐园。"
-                    },
-                    {
-                        name: "Slideways Go Karting",
-                        cnName: "室内卡丁车",
-                        tag: "✅",
-                        owner: "独立运营 (需单独买票)",
-                        duration: "1.5 - 2 小时",
-                        reason: "3 层室内立体赛道非常罕见。对于 7 岁 Darren，能亲自驾驶 Cadet Kart 且离第一家酒店极近，战术价值高。",
-                        core: "室内多层立体赛道竞速。",
-                        compare: "赛道结构不同。墨尔本有卡丁车，但 Slideways 的多层立体结构更有趣味性。"
-                    },
-                    {
-                        name: "Currumbin Wildlife Sanctuary",
-                        cnName: "库伦宾野生动物园",
-                        tag: "✅",
-                        owner: "独立运营 (需单独买票)",
-                        duration: "4-5 小时",
-                        reason: "互动性最好的自然保护区。更原始，互动更强。",
-                        core: "喂彩虹鹦鹉（几百只停在身上）、抱考拉。",
-                        compare: "有本质区别。维州法律禁止拥抱考拉，库伦宾的鹦鹉喂食规模也是独家的。"
-                    },
-                    {
-                        name: "Springbrook National Park",
-                        cnName: "春溪国家公园 - 蓝光萤火虫",
-                        tag: "✅",
-                        owner: "国家公园 (需报团或自驾)",
-                        duration: "3.5 - 4 小时 (夜间行程)",
-                        reason: "世界级自然奇观，黑暗洞穴中的“银河”。",
-                        core: "Natural Bridge 徒步、看蓝光萤火虫。",
-                        compare: "体验升级。这里的洞穴景观更壮丽、更成熟。"
-                    },
-                    {
-                        name: "Jet Boating",
-                        cnName: "喷气快艇",
-                        tag: "🆕 ✅",
-                        owner: "独立运营 (需单独买票)",
-                        duration: "1 小时",
-                        reason: "黄金海岸招牌水上活动。比鸭子船刺激得多，包含 360 度旋转和高速漂移。",
-                        core: "高速水上漂移、急转弯、浪花飞溅。",
-                        compare: "体验升级。墨尔本虽然也有快艇，但在黄金海岸的 Broadwater 水域玩，风景和氛围更好。"
+        // Tab switching for days
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const day = tab.dataset.day;
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                document.querySelectorAll('.day-section').forEach(section => {
+                    section.classList.remove('active');
+                    if (section.dataset.day === day) {
+                        section.classList.add('active');
                     }
-                ],
-                tier2: [
-                    {
-                        name: "Wet'n'Wild",
-                        cnName: "狂野水世界",
-                        tag: "✅",
-                        owner: "Village Roadshow (通票包含)",
-                        duration: "4-5 小时",
-                        reason: "12 月初昆士兰盛夏玩水是刚需。",
-                        core: "巨大的儿童戏水城堡、漂流河。",
-                        compare: "气候优势。墨尔本 12 月初下水太冷，这里正当时。"
-                    },
-                    {
-                        name: "Infinity Gold Coast",
-                        cnName: "无限幻象屋",
-                        tag: "🆕 ✅",
-                        owner: "独立运营 (需单独买票)",
-                        duration: "45 分钟 - 1 小时",
-                        reason: "最佳雨天备案。充满光影特效、激光和镜子的迷宫。",
-                        core: "穿越 20 个不同的光影环境，极具未来感。",
-                        compare: "独家体验。墨尔本没有同类的光影迷宫设施。"
-                    },
-                    {
-                        name: "Aquaduck / Quack'rDuck",
-                        cnName: "鸭子船",
-                        tag: "✅",
-                        owner: "独立运营 (需单独买票)",
-                        duration: "1.5 小时",
-                        reason: "车船合一，冲入水中的瞬间非常刺激。",
-                        core: "孩子可以坐在驾驶位“开船”并获得证书。",
-                        compare: "无。墨尔本没有两栖观光车。"
-                    },
-                    {
-                        name: "Hurricane's Grill",
-                        cnName: "飓风烧烤",
-                        tag: "✅",
-                        owner: "连锁餐饮 (Surfers Paradise 店)",
-                        duration: "1.5 - 2 小时 (晚餐)",
-                        reason: "澳洲烤肋排天花板，肉食家庭朝圣地。",
-                        core: "招牌全份猪肋排 (Pork Ribs)。",
-                        compare: "品牌独占。墨尔本没有 Hurricane's。"
-                    },
-                    {
-                        name: "Harvest Buffet",
-                        cnName: "星亿自助餐",
-                        tag: "✅",
-                        owner: "The Star Gold Coast",
-                        duration: "2 小时 (晚餐)",
-                        reason: "就在住处隔壁，方便且丰盛的海鲜自助。",
-                        core: "无限量海鲜、甜点区。",
-                        compare: "场景优势。海边吃海鲜自助更应景。"
-                    },
-                    {
-                        name: "Ripley's Believe It or Not!",
-                        cnName: "信不信由你博物馆",
-                        tag: "🆕 ✅",
-                        owner: "Ripley Entertainment (需单独买票)",
-                        duration: "1.5 - 2 小时",
-                        reason: "优质雨天备案。互动性极强。",
-                        core: "奇趣展品、激光迷宫挑战 (LaseRace)。",
-                        compare: "无。墨尔本没有 Ripley's 博物馆。"
-                    },
-                    {
-                        name: "Broadbeach / Surfers Paradise",
-                        cnName: "海滩",
-                        tag: "✅",
-                        owner: "公共区域",
-                        duration: "1-2 小时",
-                        reason: "黄金海岸的灵魂。",
-                        core: "玩沙、踩水。",
-                        compare: "景观差异。浪更大、沙更细、水更蓝。"
+                });
+            });
+        });
+
+        // Page switching
+        document.querySelectorAll('nav button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = btn.dataset.page;
+                
+                document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(`page-${page}`).classList.add('active');
+            });
+        });
+        
+        // Day 5 Plan A/B Toggle
+        document.querySelectorAll('.plan-toggle button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const plan = btn.dataset.plan;
+                const toggle = btn.parentElement;
+                
+                toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const daySection = btn.closest('.day-section');
+                daySection.querySelectorAll('.plan-content').forEach(content => {
+                    content.classList.remove('active');
+                    if (content.dataset.plan === plan) {
+                        content.classList.add('active');
                     }
-                ],
-                tier3: [
-                    {
-                        name: "Holoverse Dinosaur World",
-                        cnName: "全息恐龙世界",
-                        tag: "🆕 ⚠️",
-                        owner: "独立运营 (Southport)",
-                        duration: "1 小时",
-                        reason: "全息投影体验，可以“喂”雷龙，看恐龙孵化。",
-                        core: "全息互动，无需佩戴 VR 眼镜。",
-                        compare: "体验独特。虽然墨尔本有 VR 体验馆，但这种全息乐园较少见。"
-                    },
-                    {
-                        name: "Timezone Surfers Paradise",
-                        cnName: "超大室内游戏厅",
-                        tag: "⚠️",
-                        owner: "TEEG",
-                        duration: "1-2 小时",
-                        reason: "面积巨大，设施全。",
-                        core: "保龄球、碰碰车、街机。",
-                        compare: "高度重叠。墨尔本 Highpoint/Chadstone 也有。"
-                    },
-                    {
-                        name: "Pacific Fair",
-                        cnName: "太平洋购物中心",
-                        tag: "⚠️",
-                        owner: "AMP Capital",
-                        duration: "3-4 小时",
-                        reason: "环境好，就在家门口。",
-                        core: "乐高店、书店、吃饭。",
-                        compare: "Chadstone。墨尔本更好。"
-                    },
-                    {
-                        name: "Paradise Country",
-                        cnName: "天堂农庄",
-                        tag: "⚠️",
-                        owner: "Village Roadshow (通票包含)",
-                        duration: "3 小时",
-                        reason: "经典农场。",
-                        core: "剪羊毛。",
-                        compare: "高度重叠。墨尔本周边农场很多。"
-                    },
-                    {
-                        name: "Mario's Italian Restaurant",
-                        cnName: "马里奥意餐",
-                        tag: "⚠️",
-                        owner: "独立运营",
-                        duration: "1.5 小时",
-                        reason: "离家近，不出错。",
-                        core: "意面、披萨。",
-                        compare: "墨尔本完胜。Lygon St 更好。"
-                    },
-                    {
-                        name: "Q1 SkyPoint",
-                        cnName: "Q1 观景台",
-                        tag: "⚠️",
-                        owner: "Ardent Leisure (通票不含)",
-                        duration: "1.5 小时",
-                        reason: "地标，视野好。",
-                        core: "360度俯瞰海岸线。",
-                        compare: "Eureka Skydeck。体验逻辑一致。"
-                    },
-                    {
-                        name: "Dreamworld",
-                        cnName: "梦幻世界",
-                        tag: "⚠️",
-                        owner: "Ardent Leisure (通票不含)",
-                        duration: "全天",
-                        reason: "澳洲最大乐园。",
-                        core: "老虎、土著文化。",
-                        compare: "部分重叠。已有 Movie World，再去这里略显重复。"
-                    },
-                    {
-                        name: "Mount Tamborine",
-                        cnName: "坦伯林山",
-                        tag: "🆕 ⚠️",
-                        owner: "多个景点组合",
-                        duration: "全天 (需租车/跟团)",
-                        reason: "挖矿、树顶挑战。",
-                        core: "Thunderbird Park。",
-                        compare: "墨尔本有类似。Dandenong Ranges 也有树顶挑战。"
+                });
+            });
+        });
+        
+        // Guide Tier Tabs
+        document.querySelectorAll('.guide-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tier = tab.dataset.tier;
+                
+                document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                document.querySelectorAll('.tier-section').forEach(section => {
+                    section.classList.remove('active');
+                    if (section.dataset.tier === tier) {
+                        section.classList.add('active');
                     }
-                ]
-            };
-
-            const renderIcon = (iconName) => {
-                const IconComponent = Icons[iconName] || Icons.MapPin;
-                return <IconComponent size={16} />;
-            };
-
-            const renderAttractionCard = (attraction) => (
-                <div key={attraction.name} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-gray-900 text-lg">{attraction.cnName} <span className="text-xs text-gray-500 font-normal">{attraction.name}</span></h3>
-                        <span className="text-sm">{attraction.tag}</span>
-                    </div>
-                    <div className="space-y-2 text-sm text-gray-600">
-                        <p><span className="font-semibold text-gray-700">所属:</span> {attraction.owner}</p>
-                        <p><span className="font-semibold text-gray-700">时长:</span> {attraction.duration}</p>
-                        <p><span className="font-semibold text-gray-700">理由:</span> {attraction.reason}</p>
-                        <p><span className="font-semibold text-gray-700">核心:</span> {attraction.core}</p>
-                        <div className="bg-slate-50 p-2 rounded mt-2 text-xs">
-                            <span className="font-bold text-slate-700">🆚 墨尔本:</span> {attraction.compare}
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const handleGeminiCall = async (type) => {
-                setAiQueryType(type);
-                setShowAiModal(true);
-                setAiLoading(true);
-                setAiResponse(null);
-
-                const currentDay = itinerary[activeDay];
-                const systemPrompt = `You are a helpful travel assistant for a family trip to Gold Coast (2 adults + 7yo boy).
-                Current Day: ${currentDay.title} (${currentDay.date})
-                Location: ${currentDay.location}
-                Summary: ${currentDay.summary}
-                Timeline: ${JSON.stringify(currentDay.timeline)}
-                Accommodation: ${activeDay < 2 ? 'Nightcap Nerang' : 'Meriton Suites Broadbeach'}
-                Transportation: Uber/Public Transport (No Car)
-                `;
-
-                let userPrompt = "";
-                if (type === 'weather') {
-                    userPrompt = `Based on the activities for this day (indoor/outdoor/water), suggest a practical outfit for the 7-year-old and the parents. Also, list 3 essential items to pack in the day bag. Keep it brief, friendly, and practical. Assume typical December Gold Coast weather (warm, humid, chance of storms).`;
-                } else {
-                    userPrompt = `Suggest 3 specific, family-friendly dining options (Lunch or Dinner) near the current location or activity area for this day. 
-                    Focus on places with kids' menus, good value, or nice views. 
-                    Exclude places already in the timeline. 
-                    Format as a simple list with reasons why it's good for a 7-year-old.`;
-                }
-
-                if (!apiKey) {
-                    setAiResponse("离线模式：请连接网络并配置 API Key 以使用智能助手功能。");
-                    setAiLoading(false);
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{ text: userPrompt }]
-                            }],
-                            systemInstruction: {
-                                parts: [{ text: systemPrompt }]
-                            }
-                        })
-                    });
-
-                    const data = await response.json();
-                    if (data.candidates && data.candidates[0].content) {
-                        setAiResponse(data.candidates[0].content.parts[0].text);
-                    } else {
-                        setAiResponse("抱歉，暂时无法连接到智能助手，请稍后再试。");
-                    }
-                } catch (error) {
-                    console.error("AI Error:", error);
-                    setAiResponse("网络连接错误，请检查您的网络设置。");
-                } finally {
-                    setAiLoading(false);
-                }
-            };
-
-            return (
-                <div className="min-h-screen bg-slate-50 font-sans text-gray-800 pb-24">
-                    {/* Header */}
-                    <div className="bg-blue-600 text-white p-6 shadow-lg sticky top-0 z-40 safe-area-inset-top">
-                        <div className="max-w-3xl mx-auto flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold flex items-center gap-2">
-                                    🏖️ Cedric's GC Plan
-                                </h1>
-                                <p className="text-blue-100 text-sm mt-1">v6.0 Final | 2 Adults + 7yo</p>
-                            </div>
-                            {/* AI Buttons in Header */}
-                            <div className="flex gap-2">
-                                <button 
-                                    onClick={() => handleGeminiCall('weather')}
-                                    className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white transition backdrop-blur-sm"
-                                    title="Smart Outfit Advisor"
-                                >
-                                    <Icons.Sparkles size={20} />
-                                </button>
-                                <button 
-                                    onClick={() => handleGeminiCall('food')}
-                                    className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white transition backdrop-blur-sm"
-                                    title="Hidden Gem Food Finder"
-                                >
-                                    <Icons.Utensils size={20} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* View Switcher */}
-                    <div className="max-w-3xl mx-auto p-4 pb-0">
-                        <div className="flex bg-gray-200 p-1 rounded-lg">
-                            <button 
-                                onClick={() => setViewMode('itinerary')}
-                                className={`flex-1 py-2 text-sm font-bold rounded-md transition ${viewMode === 'itinerary' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                🗓️ 行程表
-                            </button>
-                            <button 
-                                onClick={() => setViewMode('attractions')}
-                                className={`flex-1 py-2 text-sm font-bold rounded-md transition ${viewMode === 'attractions' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                            >
-                                📍 景点图鉴
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Main Content */}
-                    <div className="max-w-3xl mx-auto p-4">
-                        
-                        {viewMode === 'itinerary' ? (
-                            <>
-                                {/* Navigation Tabs */}
-                                <div className="flex overflow-x-auto gap-2 pb-4 mb-2 no-scrollbar">
-                                    {itinerary.map((day, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setActiveDay(index)}
-                                            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                                                activeDay === index 
-                                                    ? 'bg-blue-600 text-white shadow-md' 
-                                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                            }`}
-                                        >
-                                            Day {day.day}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* Active Day Card */}
-                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                                    
-                                    {/* Day Header */}
-                                    <div className="bg-slate-50 p-5 border-b border-gray-100">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h2 className="text-xl font-bold text-gray-900">{itinerary[activeDay].title}</h2>
-                                                <p className="text-blue-600 font-medium">{itinerary[activeDay].date}</p>
-                                            </div>
-                                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-md font-semibold">
-                                                {itinerary[activeDay].location}
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-600 mt-2 text-sm">{itinerary[activeDay].summary}</p>
-                                    </div>
-
-                                    {/* Special Control for Day 5 */}
-                                    {activeDay === 5 && (
-                                        <div className="p-4 bg-blue-50 border-b border-blue-100 flex gap-2 justify-center">
-                                            <button 
-                                                onClick={() => setWeatherMode('sun')}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition ${weatherMode === 'sun' ? 'bg-orange-400 text-white shadow' : 'bg-white text-gray-600'}`}
-                                            >
-                                                <Icons.Sun size={16} /> 晴天方案
-                                            </button>
-                                            <button 
-                                                onClick={() => setWeatherMode('rain')}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition ${weatherMode === 'rain' ? 'bg-indigo-500 text-white shadow' : 'bg-white text-gray-600'}`}
-                                            >
-                                                <Icons.CloudRain size={16} /> 雨天备案
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {/* Risk Alerts */}
-                                    {itinerary[activeDay].risks.length > 0 && (
-                                        <div className="p-4 space-y-2">
-                                            {itinerary[activeDay].risks.map((risk, idx) => (
-                                                <div key={idx} className={`p-3 rounded-lg border flex gap-3 text-sm ${
-                                                    risk.type === 'critical' ? 'bg-red-50 border-red-200 text-red-800' :
-                                                    risk.type === 'warning' ? 'bg-orange-50 border-orange-200 text-orange-800' :
-                                                    risk.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
-                                                    'bg-blue-50 border-blue-200 text-blue-800'
-                                                }`}>
-                                                    <div className="flex-shrink-0 mt-0.5">
-                                                        <Icons.AlertTriangle size={18} />
-                                                    </div>
-                                                    <span>{risk.msg}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {/* Timeline */}
-                                    <div className="p-5">
-                                        <div className="space-y-6 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-gray-200">
-                                            {itinerary[activeDay].timeline.map((item, idx) => (
-                                                <div key={idx} className="relative flex gap-4">
-                                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center text-blue-600 z-10">
-                                                        {renderIcon(item.icon)}
-                                                    </div>
-                                                    <div className="flex-grow pt-1">
-                                                        <div className="flex items-baseline justify-between mb-1">
-                                                            <h3 className="font-bold text-gray-900">{item.title}</h3>
-                                                            <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                                                                {item.time}
-                                                            </span>
-                                                        </div>
-                                                        <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons for AI - Body Location */}
-                                <div className="grid grid-cols-2 gap-4 mt-6">
-                                    <button 
-                                        onClick={() => handleGeminiCall('weather')}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-xl shadow-md flex flex-col items-center gap-2 transition"
-                                    >
-                                        <Icons.Sparkles size={24} />
-                                        <span className="font-bold text-sm">✨ 穿衣与装备建议</span>
-                                    </button>
-                                    <button 
-                                        onClick={() => handleGeminiCall('food')}
-                                        className="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-xl shadow-md flex flex-col items-center gap-2 transition"
-                                    >
-                                        <Icons.Utensils size={24} />
-                                        <span className="font-bold text-sm">🍽️ 附近美食推荐</span>
-                                    </button>
-                                </div>
-
-                                {/* Packing List / Tips Footer */}
-                                <div className="mt-6 bg-slate-800 text-slate-300 rounded-xl p-5 text-sm mb-10">
-                                    <h4 className="font-bold text-white mb-3 flex items-center gap-2">
-                                        <Icons.CheckCircle size={16} /> 战前检查清单
-                                    </h4>
-                                    <ul className="space-y-2 list-disc list-inside">
-                                        <li>Day 0 出发前：拿到 Nightcap 的入住 PIN 码。</li>
-                                        <li>Day 2 & 5：提前预订萤火虫团和 Hurricane's 晚餐。</li>
-                                        <li>Day 7：坚持 17:00 死线出发去机场。</li>
-                                        <li>物资：给 Darren 准备好 Child Go Card 和水母衣。</li>
-                                    </ul>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="space-y-8">
-                                <section>
-                                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-amber-600">
-                                        🏆 Tier 1: 绝对核心 (Must-Haves)
-                                    </h2>
-                                    <div className="grid gap-4">
-                                        {attractions.tier1.map(renderAttractionCard)}
-                                    </div>
-                                </section>
-                                <section>
-                                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-blue-600">
-                                        🎖️ Tier 2: 强力推荐 (Highly Recommended)
-                                    </h2>
-                                    <div className="grid gap-4">
-                                        {attractions.tier2.map(renderAttractionCard)}
-                                    </div>
-                                </section>
-                                <section>
-                                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-500">
-                                        🎗️ Tier 3: 填补空档 (Backup / Optional)
-                                    </h2>
-                                    <div className="grid gap-4">
-                                        {attractions.tier3.map(renderAttractionCard)}
-                                    </div>
-                                </section>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* AI Modal */}
-                    {showAiModal && (
-                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-                            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden max-h-[80vh] flex flex-col">
-                                <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-slate-50">
-                                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                        {aiQueryType === 'weather' ? <Icons.Sparkles className="text-indigo-600" size={18}/> : <Icons.Utensils className="text-orange-500" size={18}/>}
-                                        {aiQueryType === 'weather' ? '智能出行建议' : '美食雷达'}
-                                    </h3>
-                                    <button onClick={() => setShowAiModal(false)} className="text-gray-400 hover:text-gray-600">
-                                        <Icons.X size={20} />
-                                    </button>
-                                </div>
-                                
-                                <div className="p-6 overflow-y-auto">
-                                    {aiLoading ? (
-                                        <div className="flex flex-col items-center justify-center py-8 text-gray-500 gap-3">
-                                            <Icons.Loader className="animate-spin text-blue-600" size={32} />
-                                            <p className="text-sm">正在分析您的行程...</p>
-                                        </div>
-                                    ) : (
-                                        <div className="prose prose-sm max-w-none">
-                                            <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                                                {aiResponse}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="p-4 border-t border-gray-100 bg-slate-50 text-xs text-center text-gray-400">
-                                    Powered by Gemini AI ✨
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<ItineraryApp />);
+                });
+            });
+        });
     </script>
 </body>
 </html>
