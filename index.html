@@ -2,14 +2,16 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="黄金海岸行程">
+    <meta name="apple-mobile-web-app-title" content="黄金海岸">
     <meta name="theme-color" content="#0ea5e9">
     <title>黄金海岸行程</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏖️</text></svg>">
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-startup-image" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 800'><rect fill='%230ea5e9' width='400' height='800'/><text x='50%25' y='45%25' text-anchor='middle' font-size='80'>🏖️</text><text x='50%25' y='55%25' text-anchor='middle' font-size='24' fill='white' font-family='system-ui'>黄金海岸</text></svg>">
     <style>
         * {
             box-sizing: border-box;
@@ -97,43 +99,108 @@
         }
         
         .content {
-            padding: 16px;
+            padding: 12px;
         }
         
+        /* Day section with animations */
         .day-section {
             display: none;
+            animation: fadeSlideIn 0.3s ease-out;
         }
         
         .day-section.active {
             display: block;
         }
         
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
         .day-header {
             background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
         }
         
         .day-header h2 {
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             color: var(--ocean);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         
         .day-header .subtitle {
             color: var(--highlight);
             font-weight: 600;
+            font-size: 0.9rem;
         }
         
+        /* Timeline container */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--sky), var(--ocean));
+            border-radius: 1px;
+        }
+        
+        /* Event cards */
         .event {
             background: var(--card);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            border-left: 4px solid var(--sky);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 3px solid var(--sky);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .event::before {
+            content: '';
+            position: absolute;
+            left: -21px;
+            top: 14px;
+            width: 10px;
+            height: 10px;
+            background: var(--sky);
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .event.completed::before {
+            background: #22c55e;
+            content: '✓';
+            color: white;
+            font-size: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .event.completed {
+            opacity: 0.7;
+        }
+        
+        .event:active {
+            transform: scale(0.98);
         }
         
         .event.highlight {
@@ -141,48 +208,60 @@
             background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
         }
         
+        .event.highlight::before {
+            background: var(--highlight);
+        }
+        
         .event.critical {
             border-left-color: #ef4444;
             background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
         }
         
+        .event.critical::before {
+            background: #ef4444;
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .event-main {
+            flex: 1;
+            min-width: 0;
+        }
+        
         .event-time {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--ocean);
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
         
         .event-title {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
+            line-height: 1.3;
         }
         
         .event-title a {
             color: inherit;
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .event-title a::after {
-            content: "📍";
-            font-size: 0.8rem;
-            opacity: 0.7;
         }
         
         .event-details {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--muted);
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         .event-details li {
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             list-style: none;
-            padding-left: 16px;
+            padding-left: 12px;
             position: relative;
         }
         
@@ -197,23 +276,70 @@
             display: inline-block;
             background: var(--sand);
             color: var(--text);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            margin-right: 6px;
-            margin-bottom: 4px;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-right: 4px;
+            margin-bottom: 3px;
         }
         
-        .tag.transport {
-            background: #dbeafe;
+        .tag.transport { background: #dbeafe; }
+        .tag.food { background: #fce7f3; }
+        .tag.activity { background: #d1fae5; }
+        
+        /* Compact Quick Actions - Icon only */
+        .quick-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
         }
         
-        .tag.food {
-            background: #fce7f3;
+        .quick-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border: none;
+            cursor: pointer;
         }
         
-        .tag.activity {
-            background: #d1fae5;
+        .quick-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .quick-btn.uber { background: #000; }
+        .quick-btn.maps { background: #4285f4; }
+        .quick-btn.phone { background: #22c55e; }
+        
+        /* Checkbox for completed events */
+        .event-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .event-check.checked {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+        
+        .event-check.checked::after {
+            content: '✓';
         }
         
         .ref-section {
@@ -331,68 +457,78 @@
         /* Attractions Guide Styles */
         .tier-header {
             background: var(--card);
-            border-radius: 16px;
-            padding: 16px 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         
-        .tier-header.tier1 {
-            border-left: 5px solid var(--tier1);
-        }
-        
-        .tier-header.tier2 {
-            border-left: 5px solid var(--tier2);
-        }
-        
-        .tier-header.tier3 {
-            border-left: 5px solid var(--tier3);
-        }
+        .tier-header.tier1 { border-left: 4px solid var(--tier1); }
+        .tier-header.tier2 { border-left: 4px solid var(--tier2); }
+        .tier-header.tier3 { border-left: 4px solid var(--tier3); }
         
         .tier-header h3 {
             margin: 0;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
         }
         
         .tier-header p {
-            margin: 4px 0 0;
-            font-size: 0.8rem;
+            margin: 2px 0 0;
+            font-size: 0.75rem;
             color: var(--muted);
         }
         
         .attraction-card {
             background: var(--card);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            transition: transform 0.2s;
         }
         
-        .attraction-card.tier1 {
-            border-left: 4px solid var(--tier1);
+        .attraction-card:active {
+            transform: scale(0.98);
         }
         
-        .attraction-card.tier2 {
-            border-left: 4px solid var(--tier2);
+        .attraction-card.tier1 { border-left: 3px solid var(--tier1); }
+        .attraction-card.tier2 { border-left: 3px solid var(--tier2); }
+        .attraction-card.tier3 { border-left: 3px solid var(--tier3); }
+        
+        /* Attraction thumbnail */
+        .attraction-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--sand) 0%, #fed7aa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
         }
         
-        .attraction-card.tier3 {
-            border-left: 4px solid var(--tier3);
+        .attraction-body {
+            flex: 1;
+            min-width: 0;
         }
         
         .attraction-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
+            align-items: center;
+            margin-bottom: 4px;
+            gap: 6px;
         }
         
         .attraction-name {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .attraction-name a {
@@ -400,39 +536,28 @@
             text-decoration: none;
         }
         
-        .attraction-name a::after {
-            content: " 📍";
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-        
         .attraction-badge {
-            font-size: 0.7rem;
-            padding: 3px 8px;
-            border-radius: 8px;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 6px;
             font-weight: 500;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         
-        .badge-pass {
-            background: #d1fae5;
-            color: #059669;
-        }
-        
-        .badge-separate {
-            background: #fee2e2;
-            color: #dc2626;
-        }
+        .badge-pass { background: #d1fae5; color: #059669; }
+        .badge-separate { background: #fee2e2; color: #dc2626; }
         
         .attraction-meta {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--muted);
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
         
         .attraction-highlights {
-            font-size: 0.85rem;
-            margin-bottom: 10px;
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            line-height: 1.4;
         }
         
         .attraction-highlights strong {
@@ -441,9 +566,9 @@
         
         .attraction-compare {
             background: #f8fafc;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 0.8rem;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 0.7rem;
         }
         
         .attraction-compare strong {
@@ -452,139 +577,448 @@
         
         .guide-tabs {
             display: flex;
-            gap: 8px;
-            padding: 0 16px;
-            margin-bottom: 8px;
+            gap: 6px;
+            padding: 8px 12px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
         
-        .guide-tabs::-webkit-scrollbar {
-            display: none;
-        }
+        .guide-tabs::-webkit-scrollbar { display: none; }
         
         .guide-tab {
             flex: 0 0 auto;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border: none;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
         }
         
-        .guide-tab[data-tier="1"] {
-            background: #fef3c7;
-            color: var(--tier1);
-        }
-        
-        .guide-tab[data-tier="2"] {
-            background: #ede9fe;
-            color: var(--tier2);
-        }
-        
-        .guide-tab[data-tier="3"] {
-            background: #f3f4f6;
-            color: var(--tier3);
-        }
+        .guide-tab[data-tier="1"] { background: #fef3c7; color: var(--tier1); }
+        .guide-tab[data-tier="2"] { background: #ede9fe; color: var(--tier2); }
+        .guide-tab[data-tier="3"] { background: #f3f4f6; color: var(--tier3); }
         
         .guide-tab.active {
             transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
         
         .tier-section {
             display: none;
+            animation: fadeSlideIn 0.3s ease-out;
         }
         
         .tier-section.active {
             display: block;
         }
+        
+        /* Countdown Banner */
+        .countdown-banner {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #78350f;
+            text-align: center;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .countdown-banner.today {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+        }
+        
+        .countdown-banner.past {
+            background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+            color: white;
+        }
+        
+        /* Swipe hint */
+        .swipe-hint {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+            padding: 4px;
+        }
+        
+        .countdown-banner .day-label {
+            font-size: 1.1rem;
+        }
+        
+        /* Day Tab States */
+        .tab.past {
+            opacity: 0.5;
+        }
+        
+        .tab.today {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white !important;
+            border-radius: 8px 8px 0 0;
+            border-bottom-color: #22c55e !important;
+        }
+        
+        .tab.future {
+            color: var(--muted);
+        }
+        
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .quick-btn.uber {
+            background: #000;
+            color: #fff;
+        }
+        
+        .quick-btn.uber:hover {
+            background: #333;
+        }
+        
+        .quick-btn.maps {
+            background: #4285f4;
+            color: #fff;
+        }
+        
+        .quick-btn.maps:hover {
+            background: #3367d6;
+        }
+        
+        .quick-btn.phone {
+            background: #22c55e;
+            color: #fff;
+        }
+        
+        .quick-btn.phone:hover {
+            background: #16a34a;
+        }
+        
+        /* Desktop Responsive Styles */
+        @media (min-width: 768px) {
+            body {
+                background: linear-gradient(135deg, var(--sky) 0%, var(--ocean) 100%);
+                background-attachment: fixed;
+                padding-bottom: 70px;
+            }
+            
+            .desktop-container {
+                max-width: 720px;
+                margin: 0 auto;
+                background: rgba(255,255,255,0.05);
+                min-height: 100vh;
+                box-shadow: 0 0 60px rgba(0,0,0,0.15);
+            }
+            
+            header {
+                border-radius: 0;
+            }
+            
+            header h1 {
+                font-size: 1.6rem;
+            }
+            
+            header p {
+                font-size: 0.9rem;
+            }
+            
+            .countdown-banner {
+                font-size: 0.9rem;
+            }
+            
+            .tabs {
+                justify-content: center;
+                gap: 2px;
+                padding: 6px 12px;
+            }
+            
+            .tab {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .day-header {
+                padding: 18px;
+            }
+            
+            .day-header h2 {
+                font-size: 1.25rem;
+            }
+            
+            .event {
+                padding: 16px;
+            }
+            
+            .event-title {
+                font-size: 1rem;
+            }
+            
+            .ref-section {
+                padding: 16px;
+            }
+            
+            /* Fixed bottom nav for desktop */
+            nav {
+                max-width: 720px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 12px 12px 0 0;
+                padding: 8px 0;
+                gap: 20px;
+            }
+            
+            nav button {
+                font-size: 1.3rem;
+                padding: 8px 20px;
+            }
+            
+            .quick-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+            
+            /* Guide page improvements */
+            .guide-tabs {
+                justify-content: center;
+                padding: 8px 16px;
+            }
+            
+            .tier-header {
+                padding: 14px 18px;
+            }
+            
+            .tier-header h3 {
+                font-size: 1rem;
+            }
+            
+            .attraction-card {
+                padding: 14px;
+            }
+            
+            .attraction-name {
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            body {
+                padding-bottom: 70px;
+            }
+            
+            .desktop-container {
+                max-width: 800px;
+            }
+            
+            header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .content {
+                padding: 24px;
+            }
+            
+            .day-header {
+                padding: 20px;
+            }
+            
+            .day-header h2 {
+                font-size: 1.35rem;
+            }
+            
+            nav {
+                max-width: 800px;
+            }
+            
+            nav button {
+                font-size: 1.4rem;
+                padding: 10px 24px;
+            }
+            
+            /* Two-column layout for attractions on larger desktop */
+            .tier-section {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            
+            .tier-section .tier-header {
+                width: 100%;
+            }
+            
+            .tier-section .attraction-card {
+                width: calc(50% - 6px);
+                margin-bottom: 0;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .desktop-container {
+                max-width: 900px;
+            }
+            
+            nav {
+                max-width: 900px;
+            }
+        }
     </style>
 </head>
 <body>
+<div class="desktop-container">
     <header>
         <h1>🏖️ 黄金海岸 7 天亲子游</h1>
-        <p>2024年12月5日 - 12月12日</p>
+        <p>2025年12月5日 - 12月12日</p>
     </header>
+    
+    <div id="countdown-banner" class="countdown-banner">
+        <span id="countdown-text">加载中...</span>
+    </div>
 
     <!-- Itinerary Page -->
     <div id="page-itinerary" class="page active">
         <div class="tabs" id="day-tabs">
-            <button class="tab active" data-day="0">D0</button>
-            <button class="tab" data-day="1">D1</button>
-            <button class="tab" data-day="2">D2</button>
-            <button class="tab" data-day="3">D3</button>
-            <button class="tab" data-day="4">D4</button>
-            <button class="tab" data-day="5">D5</button>
-            <button class="tab" data-day="6">D6</button>
-            <button class="tab" data-day="7">D7</button>
+            <button class="tab" data-day="0" data-date="2025-12-05">D0</button>
+            <button class="tab" data-day="1" data-date="2025-12-06">D1</button>
+            <button class="tab" data-day="2" data-date="2025-12-07">D2</button>
+            <button class="tab" data-day="3" data-date="2025-12-08">D3</button>
+            <button class="tab" data-day="4" data-date="2025-12-09">D4</button>
+            <button class="tab" data-day="5" data-date="2025-12-10">D5</button>
+            <button class="tab" data-day="6" data-date="2025-12-11">D6</button>
+            <button class="tab" data-day="7" data-date="2025-12-12">D7</button>
         </div>
+        <div class="swipe-hint">← 左右滑动切换 →</div>
         
         <div class="content">
             <!-- Day 0 -->
             <div class="day-section active" data-day="0">
                 <div class="day-header">
-                    <h2>Day 0 · 12月5日 (周五)</h2>
+                    <h2>Day 0 · 12月5日 周五</h2>
                     <div class="subtitle">🌙 深夜潜入</div>
                 </div>
                 
-                <div class="event critical">
-                    <div class="event-time">19:00</div>
-                    <div class="event-title">⚠️ [关键] 墨尔本机场晚餐</div>
-                    <div class="event-details">
-                        <li>在机场吃饱再出发！</li>
+                <div class="timeline">
+                    <div class="event critical" data-event-id="d0-1">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">19:00</div>
+                                <div class="event-title">⚠️ 墨尔本机场晚餐</div>
+                                <div class="event-details"><li>在机场吃饱再出发！</li></div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d0-1', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">21:30</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">✈️ 抵达黄金海岸 (OOL)</a></div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">22:00</div>
-                    <div class="event-title">🧳 提行李 → Uber 直奔 Nerang</div>
-                </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">22:30</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Nightcap+at+Commercial+Hotel+Nerang">🏨 入住 Nightcap at Commercial Hotel</a></div>
-                    <div class="event-details">
-                        <li>⚠️ 需提前确认 Late Check-in 密码</li>
+                    
+                    <div class="event" data-event-id="d0-2">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">21:30</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">✈️ 抵达黄金海岸</a></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL" class="quick-btn maps">📍</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d0-2', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">任务</div>
-                    <div class="event-title">😴 睡觉</div>
+                    
+                    <div class="event" data-event-id="d0-3">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">22:00</div>
+                                <div class="event-title">🧳 提行李 → Uber</div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=Nightcap+at+Commercial+Hotel+Nerang" class="quick-btn uber">🚗</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d0-3', this)"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="event highlight" data-event-id="d0-4">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">22:30</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Nightcap+at+Commercial+Hotel+Nerang">🏨 Nightcap Hotel</a></div>
+                                <div class="event-details"><li>⚠️ 确认 Late Check-in 密码</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Nightcap+at+Commercial+Hotel+Nerang" class="quick-btn maps">📍</a>
+                                <a href="tel:+61755781388" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d0-4', this)"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="event" data-event-id="d0-5">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">深夜</div>
+                                <div class="event-title">😴 睡觉</div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d0-5', this)"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Day 1 -->
             <div class="day-section" data-day="1">
                 <div class="day-header">
-                    <h2>Day 1 · 12月6日 (周六)</h2>
-                    <div class="subtitle">🎬 好莱坞狂欢 (内陆突击)</div>
+                    <h2>Day 1 · 12月6日 周六</h2>
+                    <div class="subtitle">🎬 好莱坞狂欢</div>
                 </div>
                 
-                <div class="event highlight">
-                    <div class="event-time">09:30 - 17:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Warner+Bros+Movie+World+Gold+Coast">🎢 Warner Bros. Movie World</a></div>
-                    <div class="event-details">
-                        <span class="tag transport">🚗 Uber 10分钟</span>
-                        <span class="tag food">🍔 园内午餐 11:30 错峰</span>
-                        <li>自带一些零食</li>
+                <div class="timeline">
+                    <div class="event highlight" data-event-id="d1-1">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">09:30-17:00</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Warner+Bros+Movie+World+Gold+Coast">🎢 Movie World</a></div>
+                                <div class="event-details">
+                                    <span class="tag transport">🚗 10分钟</span>
+                                    <span class="tag food">🍔 11:30午餐</span>
+                                </div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=Warner+Bros+Movie+World+Gold+Coast" class="quick-btn uber">🚗</a>
+                                <a href="https://maps.google.com/?q=Warner+Bros+Movie+World+Gold+Coast" class="quick-btn maps">📍</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d1-1', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">晚餐</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Nightcap+at+Commercial+Hotel+Nerang">🍽️ Nightcap Bistro</a></div>
-                    <div class="event-details">
-                        <li>返回 Nerang 享用昨晚错过的晚餐</li>
+                    
+                    <div class="event" data-event-id="d1-2">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">晚餐</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Nightcap+at+Commercial+Hotel+Nerang">🍽️ Nightcap Bistro</a></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=Nightcap+at+Commercial+Hotel+Nerang" class="quick-btn uber">🚗</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d1-2', this)"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -592,59 +1026,80 @@
             <!-- Day 2 -->
             <div class="day-section" data-day="2">
                 <div class="day-header">
-                    <h2>Day 2 · 12月7日 (周日)</h2>
+                    <h2>Day 2 · 12月7日 周日</h2>
                     <div class="subtitle">🚚 搬家 & 🌟 萤火虫</div>
                 </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">09:00 - 10:30</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Slideways+Go+Karting+World+Nerang">🏎️ Slideways Go Karting</a></div>
-                    <div class="event-details">
-                        <li>利用还在 Nerang 的最后时间</li>
+                <div class="timeline">
+                    <div class="event highlight" data-event-id="d2-1">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">09:00-10:30</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Slideways+Go+Karting+World+Nerang">🏎️ Go Karting</a></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Slideways+Go+Karting+World+Nerang" class="quick-btn maps">📍</a>
+                                <a href="tel:+61756355744" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d2-1', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">11:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🏨 退房 → Uber 前往 Meriton Broadbeach</a></div>
-                    <div class="event-details">
-                        <li>寄存行李</li>
+                    <div class="event" data-event-id="d2-2">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">11:00</div>
+                                <div class="event-title">🏨 退房 → Meriton</div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=Meriton+Suites+Broadbeach" class="quick-btn uber">🚗</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d2-2', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">11:30</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach">🛒 Pacific Fair 购物中心</a></div>
-                    <div class="event-details">
-                        <li>吃早午餐 (Brunch)</li>
-                        <li>⚠️ Coles/Woolworths 采购 (早餐/水/牛奶)</li>
+                    <div class="event" data-event-id="d2-3">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">11:30</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach">🛒 Pacific Fair</a></div>
+                                <div class="event-details"><li>Brunch + 超市采购</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach" class="quick-btn maps">📍</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d2-3', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">15:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🏨 Meriton 入住</a></div>
-                    <div class="event-details">
-                        <li>⚠️ 强制休息！整理行李</li>
-                        <li>Darren 午觉或泳池放松</li>
-                        <li>为晚上蓄力</li>
+                    <div class="event" data-event-id="d2-4">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">15:00</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🏨 Meriton 入住</a></div>
+                                <div class="event-details"><li>⚠️ 强制休息！</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach" class="quick-btn maps">📍</a>
+                                <a href="tel:+61755041700" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d2-4', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">17:30</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=The+Oasis+Shopping+Centre+Broadbeach">🍽️ 快速晚餐</a></div>
-                    <div class="event-details">
-                        <li>推荐: The Oasis 楼下简餐</li>
+                    <div class="event" data-event-id="d2-5">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">17:30</div>
+                                <div class="event-title">🍽️ 快速晚餐</div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d2-5', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">18:30 - 22:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Natural+Bridge+Springbrook+National+Park">✨ Springbrook 萤火虫夜游</a></div>
-                    <div class="event-details">
-                        <li>旅游团车酒店楼下接送</li>
-                        <li>今晚体力充沛，非常适合</li>
+                    <div class="event highlight" data-event-id="d2-6">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">18:30-22:00</div>
+                                <div class="event-title">✨ 萤火虫夜游</div>
+                                <div class="event-details"><li>酒店楼下接送</li></div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d2-6', this)"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -652,25 +1107,38 @@
             <!-- Day 3 -->
             <div class="day-section" data-day="3">
                 <div class="day-header">
-                    <h2>Day 3 · 12月8日 (周一)</h2>
+                    <h2>Day 3 · 12月8日 周一</h2>
                     <div class="subtitle">🐬 海洋霸主</div>
                 </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">09:30 - 15:30</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Sea+World+Gold+Coast">🌊 Sea World 海洋世界</a></div>
-                    <div class="event-details">
-                        <span class="tag transport">🚃 轻轨 + HoPo 渡轮 (风景好)</span>
-                        <span class="tag transport">🚌 或 705 公交 (直达)</span>
+                <div class="timeline">
+                    <div class="event highlight" data-event-id="d3-1">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">09:30-15:30</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Sea+World+Gold+Coast">🌊 Sea World</a></div>
+                                <div class="event-details">
+                                    <span class="tag transport">🚃 轻轨+渡轮</span>
+                                </div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Sea+World+Gold+Coast" class="quick-btn maps">📍</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d3-1', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">晚餐</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Harvest+Buffet+The+Star+Gold+Coast">🍱 Harvest Buffet 星亿自助餐</a></div>
-                    <div class="event-details">
-                        <li>周一犒劳大餐！</li>
-                        <li>就在住处隔壁</li>
+                    <div class="event highlight" data-event-id="d3-2">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">晚餐</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Harvest+Buffet+The+Star+Gold+Coast">🍱 Harvest 自助餐</a></div>
+                                <div class="event-details"><li>犒劳大餐！隔壁</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Harvest+Buffet+The+Star+Gold+Coast" class="quick-btn maps">📍</a>
+                                <a href="tel:+61755921133" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d3-2', this)"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -678,33 +1146,50 @@
             <!-- Day 4 -->
             <div class="day-section" data-day="4">
                 <div class="day-header">
-                    <h2>Day 4 · 12月9日 (周二)</h2>
-                    <div class="subtitle">🦜 自然与海滩 (减负版)</div>
+                    <h2>Day 4 · 12月9日 周二</h2>
+                    <div class="subtitle">🦜 自然与海滩</div>
                 </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">09:00 - 14:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Currumbin+Wildlife+Sanctuary">🐨 Currumbin Wildlife Sanctuary</a></div>
-                    <div class="event-details">
-                        <span class="tag transport">🚌 公交 700/777 直达</span>
-                        <li>⭐ 重点: 喂鹦鹉、抱考拉</li>
+                <div class="timeline">
+                    <div class="event highlight" data-event-id="d4-1">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">09:00-14:00</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Currumbin+Wildlife+Sanctuary">🐨 Currumbin</a></div>
+                                <div class="event-details">
+                                    <span class="tag transport">🚌 700/777</span>
+                                    <li>喂鹦鹉、抱考拉</li>
+                                </div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Currumbin+Wildlife+Sanctuary" class="quick-btn maps">📍</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d4-1', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">14:00 - 16:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Currumbin+Alley+Beach">🏖️ Currumbin Alley 海湾玩水</a></div>
-                    <div class="event-details">
-                        <li>或回酒店躺平</li>
-                        <li>轻松模式: 晚上没行程，尽情玩</li>
+                    <div class="event" data-event-id="d4-2">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">14:00-16:00</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Currumbin+Alley+Beach">🏖️ Currumbin 海滩</a></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Currumbin+Alley+Beach" class="quick-btn maps">📍</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d4-2', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">晚餐</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Marios+Italian+Restaurant+Broadbeach">🍝 Mario's Italian (The Oasis)</a></div>
-                    <div class="event-details">
-                        <li>或叫 Uber Eats 在公寓吃</li>
+                    <div class="event" data-event-id="d4-3">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">晚餐</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Marios+Italian+Restaurant+Broadbeach">🍝 Mario's</a></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Marios+Italian+Restaurant+Broadbeach" class="quick-btn maps">📍</a>
+                                <a href="tel:+61755389611" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d4-3', this)"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -712,69 +1197,74 @@
             <!-- Day 5 -->
             <div class="day-section" data-day="5">
                 <div class="day-header">
-                    <h2>Day 5 · 12月10日 (周三)</h2>
+                    <h2>Day 5 · 12月10日 周三</h2>
                     <div class="subtitle">💦 激流勇进</div>
                 </div>
-                
                 <div class="plan-toggle">
-                    <button class="active" data-plan="a">☀️ 晴天 Plan A</button>
-                    <button data-plan="b">☔️ 雨天 Plan B</button>
+                    <button class="active" data-plan="a">☀️ Plan A</button>
+                    <button data-plan="b">☔️ Plan B</button>
                 </div>
-                
-                <!-- Plan A: Sunny Day -->
                 <div class="plan-content active" data-plan="a">
-                    <div class="event highlight">
-                        <div class="event-time">10:00 - 15:00</div>
-                        <div class="event-title"><a href="https://maps.google.com/?q=Wet+n+Wild+Gold+Coast">🌊 Wet'n'Wild 狂野水世界</a></div>
-                        <div class="event-details">
-                            <span class="tag transport">🚗 Uber 往返</span>
-                            <li>避开周末人潮</li>
-                            <li>巨大儿童戏水城堡、漂流河</li>
+                    <div class="timeline">
+                        <div class="event highlight" data-event-id="d5a-1">
+                            <div class="event-header">
+                                <div class="event-main">
+                                    <div class="event-time">10:00-15:00</div>
+                                    <div class="event-title"><a href="https://maps.google.com/?q=Wet+n+Wild+Gold+Coast">🌊 Wet'n'Wild</a></div>
+                                    <div class="event-details"><span class="tag transport">🚗 Uber</span></div>
+                                </div>
+                                <div class="quick-actions">
+                                    <a href="uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=Wet+n+Wild+Gold+Coast" class="quick-btn uber">🚗</a>
+                                    <a href="https://maps.google.com/?q=Wet+n+Wild+Gold+Coast" class="quick-btn maps">📍</a>
+                                </div>
+                                <div class="event-check" onclick="toggleEventComplete('d5a-1', this)"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Plan B: Rainy Day -->
                 <div class="plan-content" data-plan="b">
-                    <div class="event highlight">
-                        <div class="event-time">上午</div>
-                        <div class="event-title"><a href="https://maps.google.com/?q=Infinity+Gold+Coast+Surfers+Paradise">✨ Infinity Gold Coast 无限幻象屋</a></div>
-                        <div class="event-details">
-                            <li>光影迷宫，穿越20个光影环境</li>
-                            <li>Darren 必爱的魔法感官体验</li>
+                    <div class="timeline">
+                        <div class="event highlight" data-event-id="d5b-1">
+                            <div class="event-header">
+                                <div class="event-main">
+                                    <div class="event-time">上午</div>
+                                    <div class="event-title"><a href="https://maps.google.com/?q=Infinity+Gold+Coast+Surfers+Paradise">✨ Infinity</a></div>
+                                    <div class="event-details"><li>光影迷宫</li></div>
+                                </div>
+                                <div class="quick-actions">
+                                    <a href="https://maps.google.com/?q=Infinity+Gold+Coast+Surfers+Paradise" class="quick-btn maps">📍</a>
+                                </div>
+                                <div class="event-check" onclick="toggleEventComplete('d5b-1', this)"></div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="event highlight">
-                        <div class="event-time">下午</div>
-                        <div class="event-title"><a href="https://maps.google.com/?q=Ripleys+Believe+It+or+Not+Surfers+Paradise">🎭 Ripley's Believe It or Not!</a></div>
-                        <div class="event-details">
-                            <li>信不信由你博物馆</li>
-                            <li>含激光躲避赛 (LaseRace) 和 7D 影院</li>
-                        </div>
-                    </div>
-                    
-                    <div class="event">
-                        <div class="event-time">备选</div>
-                        <div class="event-title"><a href="https://maps.google.com/?q=Timezone+Surfers+Paradise">🎮 Timezone 电玩城</a></div>
-                        <div class="event-details">
-                            <li>保龄球、碰碰车、街机</li>
-                        </div>
-                    </div>
-                    
-                    <div class="event" style="background: #f0f9ff; border-left-color: #3b82f6;">
-                        <div class="event-details">
-                            <li>📍 全在 Surfers Paradise，轻轨直达，全室内</li>
+                        <div class="event highlight" data-event-id="d5b-2">
+                            <div class="event-header">
+                                <div class="event-main">
+                                    <div class="event-time">下午</div>
+                                    <div class="event-title"><a href="https://maps.google.com/?q=Ripleys+Believe+It+or+Not+Surfers+Paradise">🎭 Ripley's</a></div>
+                                </div>
+                                <div class="quick-actions">
+                                    <a href="https://maps.google.com/?q=Ripleys+Believe+It+or+Not+Surfers+Paradise" class="quick-btn maps">📍</a>
+                                </div>
+                                <div class="event-check" onclick="toggleEventComplete('d5b-2', this)"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">晚餐</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Hurricanes+Grill+Surfers+Paradise">🥩 Hurricane's Grill 飓风烧烤</a></div>
-                    <div class="event-details">
-                        <li>📍 Surfers Paradise</li>
-                        <li>⚠️ 需提前预订</li>
+                <div class="timeline">
+                    <div class="event highlight" data-event-id="d5-dinner">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">晚餐</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Hurricanes+Grill+Surfers+Paradise">🥩 Hurricane's</a></div>
+                                <div class="event-details"><li>⚠️ 必须预订！</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Hurricanes+Grill+Surfers+Paradise" class="quick-btn maps">📍</a>
+                                <a href="tel:+61755922288" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d5-dinner', this)"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -782,41 +1272,58 @@
             <!-- Day 6 -->
             <div class="day-section" data-day="6">
                 <div class="day-header">
-                    <h2>Day 6 · 12月11日 (周四)</h2>
-                    <div class="subtitle">🚤 水上抉择 & 城市漫步</div>
+                    <h2>Day 6 · 12月11日 周四</h2>
+                    <div class="subtitle">🚤 水上抉择</div>
                 </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">上午 (二选一)</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Aquaduck+Surfers+Paradise">🦆 选项 A: Aquaduck 鸭子船</a></div>
-                    <div class="event-details">
-                        <li>温和有趣，看风景</li>
-                        <li>孩子可以"开船"并获得证书</li>
+                <div class="timeline">
+                    <div class="event highlight" data-event-id="d6-1">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">上午 A</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Aquaduck+Surfers+Paradise">🦆 Aquaduck</a></div>
+                                <div class="event-details"><li>温和看风景</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Aquaduck+Surfers+Paradise" class="quick-btn maps">📍</a>
+                                <a href="tel:+61755391998" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d6-1', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">上午 (二选一)</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Paradise+Jet+Boating+Surfers+Paradise">🚀 选项 B: Jet Boating 喷气快艇</a></div>
-                    <div class="event-details">
-                        <li>刺激尖叫！高速旋转 360°</li>
-                        <li>适合追求刺激的父子 (身高>1.2m)</li>
+                    <div class="event highlight" data-event-id="d6-2">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">上午 B</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Paradise+Jet+Boating+Surfers+Paradise">🚀 Jet Boat</a></div>
+                                <div class="event-details"><li>刺激！360°旋转</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Paradise+Jet+Boating+Surfers+Paradise" class="quick-btn maps">📍</a>
+                                <a href="tel:+61755391800" class="quick-btn phone">📞</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d6-2', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">下午</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=SkyPoint+Observation+Deck+Q1+Surfers+Paradise">🏙️ Q1 SkyPoint 观景</a></div>
-                    <div class="event-details">
-                        <li>或 <a href="https://maps.google.com/?q=Timezone+Surfers+Paradise" style="color: var(--ocean);">Timezone 打游戏</a></li>
+                    <div class="event" data-event-id="d6-3">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">下午</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=SkyPoint+Observation+Deck+Q1+Surfers+Paradise">🏙️ Q1 SkyPoint</a></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=SkyPoint+Observation+Deck+Q1+Surfers+Paradise" class="quick-btn maps">📍</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d6-3', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">晚餐</div>
-                    <div class="event-title">🍳 清理冰箱库存</div>
-                    <div class="event-details">
-                        <li>享受最后一晚</li>
+                    <div class="event" data-event-id="d6-4">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">晚餐</div>
+                                <div class="event-title">🍳 清冰箱</div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d6-4', this)"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -824,54 +1331,73 @@
             <!-- Day 7 -->
             <div class="day-section" data-day="7">
                 <div class="day-header">
-                    <h2>Day 7 · 12月12日 (周五)</h2>
-                    <div class="subtitle">✈️ 满载而归 (严控时间)</div>
+                    <h2>Day 7 · 12月12日 周五</h2>
+                    <div class="subtitle">✈️ 满载而归</div>
                 </div>
-                
-                <div class="event">
-                    <div class="event-time">10:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🏨 退房</a></div>
-                    <div class="event-details">
-                        <li>行李寄存前台</li>
+                <div class="timeline">
+                    <div class="event" data-event-id="d7-1">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">10:00</div>
+                                <div class="event-title">🏨 退房</div>
+                                <div class="event-details"><li>行李寄存</li></div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d7-1', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">上午</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Kurrawa+Beach+Broadbeach">🏖️ Kurrawa Beach</a> 或 <a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach">Pacific Fair</a></div>
-                    <div class="event-details">
-                        <li>最后一次挖沙子或补货</li>
+                    <div class="event" data-event-id="d7-2">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">上午</div>
+                                <div class="event-title">🏖️ 海滩 / 🛒 商场</div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="https://maps.google.com/?q=Kurrawa+Beach+Broadbeach" class="quick-btn maps">🏖️</a>
+                                <a href="https://maps.google.com/?q=Pacific+Fair+Shopping+Centre+Broadbeach" class="quick-btn maps">�</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d7-2', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">16:30</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Meriton+Suites+Broadbeach">🧳 回 Meriton 取行李</a></div>
-                    <div class="event-details">
-                        <li>上厕所，准备出发</li>
+                    <div class="event" data-event-id="d7-3">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">16:30</div>
+                                <div class="event-title">🧳 取行李</div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d7-3', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event critical">
-                    <div class="event-time">17:00 ⏰ 死线</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">🚗 坐上 Uber 出发去机场！</a></div>
-                    <div class="event-details">
-                        <li>⚠️ 必须避开周五晚高峰拥堵</li>
+                    <div class="event critical" data-event-id="d7-4">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">17:00 ⏰</div>
+                                <div class="event-title">🚗 去机场！</div>
+                                <div class="event-details"><li>⚠️ 避开晚高峰</li></div>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=Gold+Coast+Airport+OOL" class="quick-btn uber">🚗</a>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d7-4', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event">
-                    <div class="event-time">18:00</div>
-                    <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">✈️ 抵达机场 (OOL)</a></div>
-                    <div class="event-details">
-                        <li>悠闲办理托运</li>
-                        <li>机场吃晚餐</li>
+                    <div class="event" data-event-id="d7-5">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">18:00</div>
+                                <div class="event-title"><a href="https://maps.google.com/?q=Gold+Coast+Airport+OOL">✈️ 到机场</a></div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d7-5', this)"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="event highlight">
-                    <div class="event-time">20:10</div>
-                    <div class="event-title">🛫 起飞回墨尔本</div>
+                    <div class="event highlight" data-event-id="d7-6">
+                        <div class="event-header">
+                            <div class="event-main">
+                                <div class="event-time">20:10</div>
+                                <div class="event-title">🛫 起飞回墨尔本</div>
+                            </div>
+                            <div class="event-check" onclick="toggleEventComplete('d7-6', this)"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1327,37 +1853,140 @@
     </div>
 
     <nav>
-        <button class="active" data-page="itinerary">�</button>
+        <button class="active" data-page="itinerary">📅</button>
         <button data-page="guide">🏆</button>
         <button data-page="reference">📋</button>
     </nav>
+</div><!-- end desktop-container -->
 
     <script>
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
+        
+        // Trip dates configuration
+        const TRIP_START = new Date('2025-12-05');
+        const TRIP_DATES = [
+            '2025-12-05', '2025-12-06', '2025-12-07', '2025-12-08',
+            '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12'
+        ];
+        
+        // Initialize countdown and day highlighting
+        function updateCountdownAndHighlight() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const banner = document.getElementById('countdown-banner');
+            const countdownText = document.getElementById('countdown-text');
+            
+            // Calculate days until trip
+            const tripStart = new Date(TRIP_DATES[0]);
+            const tripEnd = new Date(TRIP_DATES[7]);
+            const diffTime = tripStart.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Find current day index
+            let currentDayIndex = -1;
+            for (let i = 0; i < TRIP_DATES.length; i++) {
+                if (TRIP_DATES[i] === today) {
+                    currentDayIndex = i;
+                    break;
+                }
+            }
+            
+            // Update banner
+            if (diffDays > 0) {
+                // Before trip
+                countdownText.innerHTML = `✈️ 距离出发还有 <strong>${diffDays}</strong> 天！`;
+                banner.className = 'countdown-banner';
+            } else if (currentDayIndex >= 0) {
+                // During trip
+                const dayNames = ['深夜潜入', '好莱坞狂欢', '搬家&萤火虫', '海洋霸主', '自然与海滩', '激流勇进', '水上抉择', '满载而归'];
+                countdownText.innerHTML = `🎉 今天是 <strong>Day ${currentDayIndex}</strong> · ${dayNames[currentDayIndex]}`;
+                banner.className = 'countdown-banner today';
+            } else if (now > tripEnd) {
+                // After trip
+                countdownText.innerHTML = '🏠 旅程已结束，期待下次冒险！';
+                banner.className = 'countdown-banner past';
+            } else {
+                countdownText.innerHTML = '🏖️ 黄金海岸之旅';
+                banner.className = 'countdown-banner';
+            }
+            
+            // Update tab highlighting
+            document.querySelectorAll('.tab').forEach(tab => {
+                const tabDate = tab.dataset.date;
+                tab.classList.remove('past', 'today', 'future', 'active');
+                
+                if (tabDate < today) {
+                    tab.classList.add('past');
+                } else if (tabDate === today) {
+                    tab.classList.add('today');
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.add('future');
+                }
+            });
+            
+            // Auto-select current day or first day
+            if (currentDayIndex >= 0) {
+                // Show today's itinerary
+                document.querySelectorAll('.day-section').forEach(section => {
+                    section.classList.remove('active');
+                    if (section.dataset.day === String(currentDayIndex)) {
+                        section.classList.add('active');
+                    }
+                });
+            } else if (diffDays > 0) {
+                // Before trip: show Day 0
+                document.querySelector('.tab[data-day="0"]').classList.add('active');
+                document.querySelector('.day-section[data-day="0"]').classList.add('active');
+            }
+        }
+        
+        // Run on load
+        updateCountdownAndHighlight();
+
+        // Haptic feedback helper
+        function haptic(type = 'light') {
+            if ('vibrate' in navigator) {
+                const patterns = { light: 10, medium: 20, heavy: 30 };
+                navigator.vibrate(patterns[type] || 10);
+            }
+        }
+        
+        // Current day tracking for swipe
+        let currentDay = 0;
+        const totalDays = 8;
+        
+        function switchToDay(day) {
+            if (day < 0 || day >= totalDays) return;
+            currentDay = day;
+            haptic('light');
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[data-day="${day}"]`)?.classList.add('active');
+            
+            document.querySelectorAll('.day-section').forEach(section => {
+                section.classList.remove('active');
+                if (section.dataset.day === String(day)) {
+                    section.classList.add('active');
+                }
+            });
+        }
 
         // Tab switching for days
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                const day = tab.dataset.day;
-                
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                document.querySelectorAll('.day-section').forEach(section => {
-                    section.classList.remove('active');
-                    if (section.dataset.day === day) {
-                        section.classList.add('active');
-                    }
-                });
+                const day = parseInt(tab.dataset.day);
+                switchToDay(day);
             });
         });
 
         // Page switching
         document.querySelectorAll('nav button').forEach(btn => {
             btn.addEventListener('click', () => {
+                haptic('light');
                 const page = btn.dataset.page;
                 
                 document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -1371,6 +2000,7 @@
         // Day 5 Plan A/B Toggle
         document.querySelectorAll('.plan-toggle button').forEach(btn => {
             btn.addEventListener('click', () => {
+                haptic('light');
                 const plan = btn.dataset.plan;
                 const toggle = btn.parentElement;
                 
@@ -1390,6 +2020,7 @@
         // Guide Tier Tabs
         document.querySelectorAll('.guide-tab').forEach(tab => {
             tab.addEventListener('click', () => {
+                haptic('light');
                 const tier = tab.dataset.tier;
                 
                 document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
@@ -1402,6 +2033,82 @@
                     }
                 });
             });
+        });
+        
+        // Swipe gesture support for day switching
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const swipeThreshold = 50;
+        
+        const itineraryPage = document.getElementById('page-itinerary');
+        
+        itineraryPage.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        itineraryPage.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe left - next day
+                    switchToDay(currentDay + 1);
+                } else {
+                    // Swipe right - previous day
+                    switchToDay(currentDay - 1);
+                }
+            }
+        }, { passive: true });
+        
+        // Event completion checkbox with localStorage
+        function loadCompletedEvents() {
+            const completed = JSON.parse(localStorage.getItem('completedEvents') || '{}');
+            Object.keys(completed).forEach(id => {
+                const event = document.querySelector(`[data-event-id="${id}"]`);
+                if (event && completed[id]) {
+                    event.classList.add('completed');
+                    const check = event.querySelector('.event-check');
+                    if (check) check.classList.add('checked');
+                }
+            });
+        }
+        
+        function toggleEventComplete(eventId, element) {
+            haptic('medium');
+            const completed = JSON.parse(localStorage.getItem('completedEvents') || '{}');
+            completed[eventId] = !completed[eventId];
+            localStorage.setItem('completedEvents', JSON.stringify(completed));
+            
+            const eventCard = element.closest('.event');
+            const check = element;
+            
+            if (completed[eventId]) {
+                eventCard.classList.add('completed');
+                check.classList.add('checked');
+            } else {
+                eventCard.classList.remove('completed');
+                check.classList.remove('checked');
+            }
+        }
+        
+        // Initialize completed events on load
+        loadCompletedEvents();
+        
+        // Quick action button haptic
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', () => haptic('light'));
+        });
+        
+        // Double-tap to scroll to top
+        let lastTap = 0;
+        document.querySelector('header').addEventListener('click', () => {
+            const now = Date.now();
+            if (now - lastTap < 300) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                haptic('light');
+            }
+            lastTap = now;
         });
     </script>
 </body>
