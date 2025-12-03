@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goldcoast-trip-v6';
+const CACHE_NAME = 'goldcoast-trip-v7';
 const urlsToCache = [
     './',
     './index.html',
