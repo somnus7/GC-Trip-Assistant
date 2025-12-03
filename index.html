@@ -574,8 +574,7 @@
             padding: 10px 12px;
             margin-bottom: 8px;
             box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-            display: flex;
-            gap: 10px;
+            display: block;
             transition: transform 0.2s;
         }
         
@@ -608,17 +607,18 @@
         .attraction-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-            gap: 6px;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         
         .attraction-name {
             font-weight: 600;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 0.9rem;
+            line-height: 1.3;
+            flex: 1;
+            min-width: 0;
         }
         
         .attraction-name a {
@@ -639,15 +639,15 @@
         .badge-separate { background: #fee2e2; color: #dc2626; }
         
         .attraction-meta {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--muted);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
         
         .attraction-highlights {
-            font-size: 0.75rem;
-            margin-bottom: 4px;
-            line-height: 1.4;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            line-height: 1.5;
         }
         
         .attraction-highlights strong {
@@ -657,8 +657,10 @@
         .attraction-compare {
             background: var(--border-color);
             border-radius: 6px;
-            padding: 6px 8px;
-            font-size: 0.7rem;
+            padding: 8px 10px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            margin-top: 6px;
         }
         
         .attraction-compare strong {
@@ -947,7 +949,7 @@
             }
             
             /* Two-column layout for attractions on larger desktop */
-            .tier-section {
+            .tier-section.active {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 12px;
